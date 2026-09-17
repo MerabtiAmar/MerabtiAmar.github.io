@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Prédire les mesures d'un puits là où elles manquent — Amar Merabti</title>
+  <meta name="description" content="Diagraphies de puits chez ENAGEO (groupe Sonatrach) : reconstruire des mesures manquantes avec des LSTM (MAE 12,7) et prédire une série d'un puits à l'autre, corrélation portée de 0,52 à 0,82.">
+  <meta name="author" content="Amar Merabti">
+  <link rel="canonical" href="https://merabtiamar.github.io/experiences/diagraphies-enageo.html">
+  <link rel="alternate" hreflang="fr" href="https://merabtiamar.github.io/experiences/diagraphies-enageo.html">
+  <link rel="alternate" hreflang="en" href="https://merabtiamar.github.io/en/experiences/diagraphies-enageo.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Prédire les mesures d'un puits là où elles manquent">
+  <meta property="og:description" content="Du stage au CDD chez ENAGEO : des diagraphies traitées comme des séries temporelles, des LSTM, et une corrélation portée de 0,52 à 0,82 d'un puits à l'autre.">
+  <meta property="og:url" content="https://merabtiamar.github.io/experiences/diagraphies-enageo.html">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:site_name" content="Amar Merabti">
+  <meta property="og:image" content="https://merabtiamar.github.io/assets/img/og-fr.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Amar Merabti, data scientist — disponible en octobre 2026">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/css/site.css">
+</head>
+<body>
+<a class="skip" href="#contenu">Aller au contenu</a>
+
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="../index.html">Amar Merabti <span>· carnet</span></a>
+    <nav class="nav" aria-label="Sections">
+      <a href="../index.html#experiences">Expériences</a>
+      <a href="../index.html#parcours">Parcours</a>
+      <a href="../index.html#atelier">Atelier</a>
+      <a href="../index.html#recherche">Ce que je cherche</a>
+      <a href="../index.html#contact">Contact</a>
+    </nav>
+    <a class="lang" href="../en/experiences/diagraphies-enageo.html" hreflang="en" lang="en" title="English version">EN</a>
+  </div>
+</header>
+
+<main id="contenu">
+  <section class="case-hero">
+    <div class="wrap">
+      <a class="back" href="../index.html#exp-enageo">← Retour au carnet</a>
+      <p class="label" style="margin-top:28px">Exp. 06 · 2023–2024 · ENAGEO, groupe Sonatrach · stage de licence puis CDD</p>
+      <h1>Prédire les mesures d'un puits là où elles manquent</h1>
+      <p class="question">Peut-on reconstruire une mesure de puits là où elle manque, et la prédire dans un autre puits&nbsp;?</p>
+      <div class="facts-row">
+        <div><div class="num">0,52 → 0,82</div><div class="cap">de corrélation d'un puits à l'autre, du stage (MLP) au CDD (LSTM)</div></div>
+        <div><div class="num">21,4 → 15,8</div><div class="cap">de MAE d'un puits à l'autre (RMSE 27,6 → 20,2) : 20 à 30 % d'erreur en moins</div></div>
+        <div><div class="num">12,7</div><div class="cap">de MAE pour combler les trous d'une série dans un même puits (RMSE 15,2)</div></div>
+        <div><div class="num">5</div><div class="cap">algorithmes accessibles aux géophysiciens, sans écrire de code</div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <article class="article">
+      <span class="step">01 · Le contexte</span>
+      <h2>Des mesures coûteuses, et souvent incomplètes</h2>
+      <p>ENAGEO est l'entreprise nationale de géophysique algérienne, filiale du groupe Sonatrach. Pour connaître le sous-sol, on mesure des caractéristiques de la roche, comme l'élasticité ou la densité, le long d'un puits : l'appareil de mesure est placé à une profondeur, prend sa mesure, puis descend plus bas, à intervalles réguliers. D'autres caractéristiques sont obtenues par des méthodes sismiques. Chaque caractéristique forme ainsi une série indexée par la profondeur : une <strong>diagraphie</strong>.</p>
+      <p>Ces séries sont souvent incomplètes : appareil défaillant, données perdues pendant le transfert ou supprimées. Et surtout, ces mesures coûtent très cher. D'où deux questions : peut-on <strong>reconstruire une série là où elle manque</strong>&nbsp;? Et peut-on <strong>la prédire dans un autre puits</strong>, à partir d'un puits déjà mesuré&nbsp;?</p>
+
+      <span class="step">02 · Le stage</span>
+      <h2>Février – juin 2023 : une première généralisation d'un puits à l'autre</h2>
+      <p>Pour mon mémoire de licence, j'ai travaillé sur les diagraphies de 3 puits, en évaluant les modèles sur un puits entier, jamais vu pendant l'entraînement :</p>
+      <table>
+        <thead><tr><th>Modèle</th><th style="text-align:right">Corrélation (r)</th></tr></thead>
+        <tbody>
+          <tr><td>Régression linéaire</td><td class="n">0,15</td></tr>
+          <tr><td>SVM à noyau RBF</td><td class="n">0,29</td></tr>
+          <tr class="best"><td>MLP 100/50, ReLU</td><td class="n">0,52 (MAE 21,4, RMSE 27,6)</td></tr>
+        </tbody>
+      </table>
+      <aside class="margin"><span class="label">Ce qui n'a pas marché</span>Même le meilleur modèle reste insuffisant sur des formations géologiques hétérogènes.</aside>
+      <p>J'ai aussi livré une application de bureau pour que les géophysiciens puissent entraîner des modèles et compléter leurs mesures sans écrire de code :</p>
+      <pre>Interface Java Swing
+ ├─ connexion : comptes MySQL, rôles administrateur et utilisateur
+ ├─ entraînement : import CSV → grille éditable → python train.py &lt;algorithme&gt;
+ └─ prédiction   : import CSV avec trous → python predict.py &lt;algorithme&gt; → tableau complété → export</pre>
+      <p>Cinq algorithmes sont proposés : régression linéaire, SVM, MLP, forêt aléatoire et gradient boosting. Java et Python échangent des fichiers CSV, et les calculs tournent en arrière-plan sans figer l'interface.</p>
+
+      <span class="step">03 · Le CDD</span>
+      <h2>Juillet 2023 – juillet 2024 : les diagraphies comme des séries temporelles</h2>
+      <p>J'ai ensuite travaillé chez ENAGEO en CDD de développeur IA, à temps partiel, en parallèle de mon M1 SII. L'idée : traiter chaque série indexée par la profondeur comme une série temporelle, avec sa tendance, sa saisonnalité et ses cycles, et utiliser des modèles de deep learning, principalement des LSTM et des RNN. Deux axes :</p>
+      <p><strong>1. Combler les trous d'une série dans un même puits.</strong> Le modèle apprend sur les parties mesurées d'une série et prédit ses valeurs manquantes. Avec les LSTM, j'obtiens une <strong>MAE de 12,7</strong> et une <strong>RMSE de 15,2</strong>, avec une architecture proche de celle de mon <a href="imputation-series-temporelles.html">projet d'imputation de séries temporelles</a>.</p>
+      <p><strong>2. Prédire une série d'un puits à l'autre.</strong> Dans la continuité du stage, un LSTM est entraîné sur la série d'un puits, puis prédit la même caractéristique dans un autre puits. Par rapport au stage, la corrélation passe de <strong>0,52 à 0,82</strong>, la MAE de <strong>21,4 à 15,8</strong> et la RMSE de <strong>27,6 à 20,2</strong> : 20 à 30 % d'erreur en moins.</p>
+      <aside class="margin"><span class="label">Ce qui n'a pas marché</span>Même à 0,82, la prédiction d'un puits à l'autre ne suffisait pas encore pour être exploitée par l'entreprise. C'était le début d'une piste : j'ai laissé le projet en cours de développement en partant en France.</aside>
+      <p>Les diagraphies de l'entreprise sont confidentielles, tout comme les courbes produites avec son logiciel interne. Le dépôt public contient l'application du stage et des diagraphies synthétiques au même format, pour la tester.</p>
+    </article>
+
+    <nav class="next" aria-label="Navigation entre expériences">
+      <a href="benchmark-llm.html">← Exp. 05 · Benchmark de LLM</a>
+      <a href="https://github.com/MerabtiAmar/well-log-imputation" rel="noopener">Application du stage et données synthétiques ↗</a>
+      <a href="../index.html#parcours">Voir le parcours →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <span>© 2026 Amar Merabti · textes et photos tous droits réservés</span>
+    <span><a href="mailto:merabtiamar91@gmail.com">merabtiamar91@gmail.com</a></span>
+  </div>
+</footer>
+</body>
+</html>

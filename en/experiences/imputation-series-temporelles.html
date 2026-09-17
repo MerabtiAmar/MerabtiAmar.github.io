@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Filling the gaps of 3,127 electricity meters — Amar Merabti</title>
+  <meta name="description" content="Time series imputation on electricity consumption: an STL decomposition rewritten for GPU beats an LSTM, a U-Net and a Transformer. Project supervised by Prof. Themis Palpanas.">
+  <meta name="author" content="Amar Merabti">
+  <link rel="canonical" href="https://merabtiamar.github.io/en/experiences/imputation-series-temporelles.html">
+  <link rel="alternate" hreflang="fr" href="https://merabtiamar.github.io/experiences/imputation-series-temporelles.html">
+  <link rel="alternate" hreflang="en" href="https://merabtiamar.github.io/en/experiences/imputation-series-temporelles.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Filling the gaps of 3,127 electricity meters">
+  <meta property="og:description" content="Deep learning versus a classical decomposition on tens of millions of time steps: the simplest method wins.">
+  <meta property="og:url" content="https://merabtiamar.github.io/en/experiences/imputation-series-temporelles.html">
+  <meta property="og:locale" content="en_GB">
+  <meta property="og:site_name" content="Amar Merabti">
+  <meta property="og:image" content="https://merabtiamar.github.io/assets/img/og-en.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Amar Merabti, data scientist — available from October 2026">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="../../assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../../assets/css/site.css">
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="../index.html">Amar Merabti <span>· notebook</span></a>
+    <nav class="nav" aria-label="Sections">
+      <a href="../index.html#experiments">Experiments</a>
+      <a href="../index.html#path">Path</a>
+      <a href="../index.html#workshop">Workshop</a>
+      <a href="../index.html#looking-for">What I'm looking for</a>
+      <a href="../index.html#contact">Contact</a>
+    </nav>
+    <a class="lang" href="../../experiences/imputation-series-temporelles.html" hreflang="fr" lang="fr" title="Version française">FR</a>
+  </div>
+</header>
+
+<main id="content">
+  <section class="case-hero">
+    <div class="wrap">
+      <a class="back" href="../index.html#exp-imputation">← Back to the notebook</a>
+      <p class="label" style="margin-top:28px">Exp. 04 · 2025 · MSc year 1, DCI · supervised by Prof. Themis Palpanas · with Kaci Sofiane Agouni and Aghilas Ould Braham</p>
+      <h1>Filling the gaps of 3,127 electricity meters</h1>
+      <p class="question">To fill gaps in a time series, does deep learning beat a classical method?</p>
+      <div class="facts-row">
+        <div><div class="num">0.262</div><div class="cap">MAE for GPU STL, on known households</div></div>
+        <div><div class="num">0.279</div><div class="cap">on 1,098 unseen households, with 50% of values masked</div></div>
+        <div><div class="num">12,864</div><div class="cap">readings per series: one every 30 minutes for 268 days</div></div>
+        <div><div class="num">5</div><div class="cap">methods compared, including 3 deep models</div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <article class="article">
+      <span class="step">01 · The data</span>
+      <h2>Two scenarios, one challenge</h2>
+      <p>Smart meters record each household's electricity consumption every 30 minutes. Some readings were masked; the goal is to reconstruct them with the lowest possible mean absolute error (MAE), as part of an internal Kaggle challenge in the master's program.</p>
+      <table>
+        <thead><tr><th>Scenario</th><th>Training</th><th>Test</th><th style="text-align:right">Masked</th></tr></thead>
+        <tbody>
+          <tr><td>Step A</td><td>3,127 complete households</td><td>the same households</td><td class="n">30%</td></tr>
+          <tr><td>Step B</td><td>the same 3,127 households</td><td>1,098 new households</td><td class="n">50%</td></tr>
+        </tbody>
+      </table>
+      <p>Consumption values are highly skewed, with long tails. Before any method, values outside [Q1 − 1.5·IQR, Q3 + 1.5·IQR] are clipped to the nearest quartile, so that outlier readings do not distort learning.</p>
+
+      <span class="step">02 · The methods</span>
+      <h2>From the simplest to the deepest</h2>
+      <table>
+        <thead><tr><th>Method</th><th>Principle</th></tr></thead>
+        <tbody>
+          <tr><td>Nearest neighbor</td><td>copy the values of the closest training household, measured on the observed positions</td></tr>
+          <tr><td>GPU STL</td><td>trend + seasonality decomposition, rewritten in PyTorch</td></tr>
+          <tr><td>LSTM autoencoder</td><td>reconstruction of masked windows</td></tr>
+          <tr><td>PConv U-Net</td><td>1D inpainting: convolutions only see observed values</td></tr>
+          <tr><td>Transformer</td><td>self-supervised masked imputation, trained on several GPUs</td></tr>
+        </tbody>
+      </table>
+      <p>STL, the winner, fits in a few lines. It starts from the nearest-neighbor imputation, then repeats 30 times:</p>
+      <ol>
+        <li>estimate the trend with a moving average, computed as a 1D convolution on GPU;</li>
+        <li>estimate seasonality as the median residual at each phase of the cycle, for example daily (48 readings) or weekly (336);</li>
+        <li>rebuild trend + seasonality and write the result back <strong>only</strong> at the missing positions.</li>
+      </ol>
+      <aside class="margin"><span class="label">Hardware</span>Kaggle: 4 NVIDIA L4 GPUs with 23 GB each, 48 threads, about 170 GB of memory, PyTorch 2.5.</aside>
+
+      <span class="step">03 · Results</span>
+      <h2>The simplest method wins</h2>
+      <figure class="chart wide">
+<!--CHART:imputation-->
+<div class="chart-legend">
+<span><i class="key dot-accent"></i>Step A: same households, 30% masked</span>
+<span><i class="key sq-ink"></i>Step B: new households, 50% masked</span>
+</div>
+<div class="dots">
+<div class="dots-row dots-axis" aria-hidden="true"><span class="dots-label"></span><span class="dots-track">
+<span class="tick" style="left:0.00%">0.25</span>
+<span class="tick" style="left:18.18%">0.27</span>
+<span class="tick" style="left:36.36%">0.29</span>
+<span class="tick" style="left:54.55%">0.31</span>
+<span class="tick" style="left:72.73%">0.33</span>
+<span class="tick" style="left:90.91%">0.35</span>
+</span><span class="dots-vals"></span></div>
+<div class="dots-row">
+<span class="dots-label">GPU-accelerated STL<small>trend + seasonal decomposition</small></span><span class="dots-track">
+<span class="grid" style="left:0.00%"></span>
+<span class="grid" style="left:18.18%"></span>
+<span class="grid" style="left:36.36%"></span>
+<span class="grid" style="left:54.55%"></span>
+<span class="grid" style="left:72.73%"></span>
+<span class="grid" style="left:90.91%"></span>
+<i class="m dot-accent" style="left:10.98%" title="GPU-accelerated STL · Step A: same households, 30% masked: 0.262"></i>
+<i class="m sq-ink" style="left:26.59%" title="GPU-accelerated STL · Step B: new households, 50% masked: 0.279"></i>
+</span>
+<span class="dots-vals">0.262 · 0.279</span>
+</div>
+<div class="dots-row">
+<span class="dots-label">Nearest neighbor<small>copy of the closest household</small></span><span class="dots-track">
+<span class="grid" style="left:0.00%"></span>
+<span class="grid" style="left:18.18%"></span>
+<span class="grid" style="left:36.36%"></span>
+<span class="grid" style="left:54.55%"></span>
+<span class="grid" style="left:72.73%"></span>
+<span class="grid" style="left:90.91%"></span>
+<i class="m dot-accent" style="left:56.72%" title="Nearest neighbor · Step A: same households, 30% masked: 0.312"></i>
+<i class="m sq-ink" style="left:55.35%" title="Nearest neighbor · Step B: new households, 50% masked: 0.311"></i>
+</span>
+<span class="dots-vals">0.312 · 0.311</span>
+</div>
+<div class="dots-row">
+<span class="dots-label">PConv U-Net<small>partial convolutions</small></span><span class="dots-track">
+<span class="grid" style="left:0.00%"></span>
+<span class="grid" style="left:18.18%"></span>
+<span class="grid" style="left:36.36%"></span>
+<span class="grid" style="left:54.55%"></span>
+<span class="grid" style="left:72.73%"></span>
+<span class="grid" style="left:90.91%"></span>
+<i class="m dot-accent" style="left:69.60%" title="PConv U-Net · Step A: same households, 30% masked: 0.327"></i>
+<i class="m sq-ink" style="left:75.90%" title="PConv U-Net · Step B: new households, 50% masked: 0.333"></i>
+</span>
+<span class="dots-vals">0.327 · 0.333</span>
+</div>
+<div class="dots-row">
+<span class="dots-label">Transformer<small>self-supervised masking</small></span><span class="dots-track">
+<span class="grid" style="left:0.00%"></span>
+<span class="grid" style="left:18.18%"></span>
+<span class="grid" style="left:36.36%"></span>
+<span class="grid" style="left:54.55%"></span>
+<span class="grid" style="left:72.73%"></span>
+<span class="grid" style="left:90.91%"></span>
+<i class="m dot-accent" style="left:73.51%" title="Transformer · Step A: same households, 30% masked: 0.331"></i>
+<i class="m sq-ink" style="left:85.67%" title="Transformer · Step B: new households, 50% masked: 0.344"></i>
+</span>
+<span class="dots-vals">0.331 · 0.344</span>
+</div>
+<div class="dots-row">
+<span class="dots-label">LSTM autoencoder<small>masked windows</small></span><span class="dots-track">
+<span class="grid" style="left:0.00%"></span>
+<span class="grid" style="left:18.18%"></span>
+<span class="grid" style="left:36.36%"></span>
+<span class="grid" style="left:54.55%"></span>
+<span class="grid" style="left:72.73%"></span>
+<span class="grid" style="left:90.91%"></span>
+<i class="m dot-accent" style="left:77.26%" title="LSTM autoencoder · Step A: same households, 30% masked: 0.335"></i>
+<i class="m sq-ink" style="left:96.15%" title="LSTM autoencoder · Step B: new households, 50% masked: 0.356"></i>
+</span>
+<span class="dots-vals">0.335 · 0.356</span>
+</div>
+</div>
+<!--/CHART:imputation-->
+        <figcaption class="fig-caption"><b>Fig. 1</b> — MAE in both scenarios, lower is better. STL comes first in both, including on households it has never seen.</figcaption>
+      </figure>
+      <figure class="wide">
+        <img src="../../assets/fig/imputation-temps.png" alt="Training and prediction time in minutes: a few minutes for nearest neighbor and STL, up to about 170 minutes of training for the Transformer" width="640" height="480" loading="lazy" style="max-width:560px">
+        <figcaption class="fig-caption"><b>Fig. 2</b> — Training and prediction time, in minutes. STL and nearest neighbor need no training; the Transformer trains for nearly three hours.</figcaption>
+      </figure>
+
+      <span class="step">04 · Why</span>
+      <h2>The right inductive bias beats a big model</h2>
+      <ul>
+        <li><strong>The structure of the data.</strong> Electricity consumption is made of a trend plus daily and weekly cycles: exactly what STL assumes.</li>
+        <li><strong>The scale.</strong> 3,127 series of 12,864 points, tens of millions of time steps: high-capacity models converge poorly within a reasonable number of epochs.</li>
+        <li><strong>The budget.</strong> To fit on 4 GPUs, the deep models' depth, dimensions and sequence lengths had to be reduced, at the cost of their representational power.</li>
+      </ul>
+      <aside class="margin"><span class="label">What did not work</span>The three deep models, with up to nearly three hours of training, stay between 0.327 and 0.335 MAE on Step A: worse than simply copying the closest household (0.312).</aside>
+      <p>Deep models remain an option, but they would need more compute, a lighter architecture or multi-stage pretraining to beat this baseline.</p>
+    </article>
+
+    <nav class="next" aria-label="Navigation between experiments">
+      <a href="football-quadrupede.html">← Exp. 03 · Agents without rules</a>
+      <a href="https://github.com/MerabtiAmar/time-series-imputation" rel="noopener">Code and report ↗</a>
+      <a href="benchmark-llm.html">Exp. 05 · LLM benchmark →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <span>© 2026 Amar Merabti · text and photos all rights reserved</span>
+    <span><a href="mailto:merabtiamar91@gmail.com">merabtiamar91@gmail.com</a></span>
+  </div>
+</footer>
+</body>
+</html>

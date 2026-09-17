@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>KabyLLM, a Kabyle language model — Amar Merabti</title>
+  <meta name="description" content="Training a language model from scratch for Kabyle, a low-resource language: decoding legacy fonts, a 120-million-character corpus, a 36.3M-parameter Transformer, measured results.">
+  <meta name="author" content="Amar Merabti">
+  <link rel="canonical" href="https://merabtiamar.github.io/en/experiences/kabyllm.html">
+  <link rel="alternate" hreflang="fr" href="https://merabtiamar.github.io/experiences/kabyllm.html">
+  <link rel="alternate" hreflang="en" href="https://merabtiamar.github.io/en/experiences/kabyllm.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="KabyLLM — a Kabyle language model trained from scratch">
+  <meta property="og:description" content="36.3M parameters, 107M tokens, one T4: what worked and what did not.">
+  <meta property="og:url" content="https://merabtiamar.github.io/en/experiences/kabyllm.html">
+  <meta property="og:locale" content="en_GB">
+  <meta property="og:site_name" content="Amar Merabti">
+  <meta property="og:image" content="https://merabtiamar.github.io/assets/img/og-en.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Amar Merabti, data scientist — available from October 2026">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="../../assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../../assets/css/site.css">
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="../index.html">Amar Merabti <span>· notebook</span></a>
+    <nav class="nav" aria-label="Sections">
+      <a href="../index.html#experiments">Experiments</a>
+      <a href="../index.html#path">Path</a>
+      <a href="../index.html#workshop">Workshop</a>
+      <a href="../index.html#looking-for">What I'm looking for</a>
+      <a href="../index.html#contact">Contact</a>
+    </nav>
+    <a class="lang" href="../../experiences/kabyllm.html" hreflang="fr" lang="fr" title="Version française">FR</a>
+  </div>
+</header>
+
+<main id="content">
+  <section class="case-hero">
+    <div class="wrap">
+      <a class="back" href="../index.html#exp-kabyllm">← Back to the notebook</a>
+      <p class="label" style="margin-top:28px">Exp. 01 · 2026 · personal project</p>
+      <h1>A language model for Kabyle, trained from scratch</h1>
+      <p class="question">Can you train a language model for a language with almost no data?</p>
+      <div class="facts-row">
+        <div><div class="num">36.3M</div><div class="cap">parameters, Llama-style architecture</div></div>
+        <div><div class="num">107M</div><div class="cap">pretraining tokens, in 46 minutes on one T4</div></div>
+        <div><div class="num">1.977</div><div class="cap">bits per character on validation, −3.3%</div></div>
+        <div><div class="num">40</div><div class="cap">regression tests on the data pipeline</div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <article class="article">
+      <span class="step">01 · The problem</span>
+      <h2>A language that fits on a hard drive</h2>
+      <p>Kabyle is a Berber language, and my native language. All usable Kabyle text amounts to about <strong>40 million tokens</strong>: three to four orders of magnitude less than what a general-purpose model needs. Part of it sits in some 600 community PDFs, often typeset with pre-Unicode fonts.</p>
+      <p>Even multilingual models read it poorly. I measured how many tokens their tokenizers need, on average, to write one Kabyle word, over 400,000 characters:</p>
+      <table>
+        <thead><tr><th>Tokenizer</th><th style="text-align:right">tokens per word</th></tr></thead>
+        <tbody>
+          <tr class="best"><td>Qwen3 (1.7B / 4B)</td><td class="n">2.77</td></tr>
+          <tr><td>SmolLM3-3B</td><td class="n">2.96</td></tr>
+          <tr><td>Mistral-7B v0.3</td><td class="n">3.03</td></tr>
+          <tr><td>NLLB-200, trained with Kabyle</td><td class="n">2.26</td></tr>
+        </tbody>
+      </table>
+      <p>English text sits around 1.3 tokens per word, so Kabyle costs Qwen3 about <strong>2.1 times more</strong>, in compute as well as context. Contrary to what I expected, special letters (ɣ, ḍ, ɛ) account for almost none of it (a 1.06 penalty): the cost comes from morphology.</p>
+
+      <span class="step">02 · First attempt</span>
+      <h2>A model that learned by heart</h2>
+      <p>My first version was a classic GPT with <strong>43.27M parameters</strong> (8 layers, 128-token context), trained on 2 T4 GPUs on the <strong>995,159 tokens</strong> of Kabyle Wikipedia. The tokenizer split on hyphens and lowercased everything: 35,000 distinct words, 42% of which appeared only once, and 6.5% unknown words.</p>
+      <p>Result: a loss of <strong>1.33 on training and 6.21 on validation</strong>. The model was not undertrained, it had memorized its corpus. By the Chinchilla scaling law, 1M tokens justify a model of about 50,000 parameters: mine was nearly 800 times too large.</p>
+      <aside class="margin"><span class="label">What did not work</span>An interrupted Kaggle session also cost 8,207 training steps. The next pipeline stops by itself at 11 hours, before the 12-hour limit, and saves its state to the Hub.</aside>
+
+      <span class="step">03 · The data</span>
+      <h2>Decipher before you train</h2>
+      <p>Most of the work went into making the text usable. Three problems specific to Kabyle:</p>
+      <p><strong>Letters with several forms.</strong> Latin ɛ, Greek ε and Cyrillic ԑ stand for the same letter; ɤ often replaces ɣ. Each variant creates duplicate words in the vocabulary. The pipeline normalizes them instead of rejecting them.</p>
+      <p><strong>Fonts that encrypt the text.</strong> Older books are typeset with fonts where <code>$</code> means ɣ and <code>î</code> means ṭ. It is a substitution cipher, different for each font, sometimes even between the roman and italic faces of the same book. I wrote a decoder that works font by font, and a solver that automatically recovers the table of an unknown font by minimizing the rate of words missing from a Kabyle dictionary.</p>
+      <p><strong>Words that carry a sentence.</strong> Kabyle is agglutinative: <em>yenna-yas</em> ("he told him") holds subject, verb and object. The pipeline keeps these clitics instead of splitting them.</p>
+      <p>Every bug I hit became a test: 40 regression tests, all taken from real cases.</p>
+
+      <span class="step">04 · The model</span>
+      <h2>Pretrain on books, fine-tune on messages</h2>
+      <p>The second version is a Llama-style decoder Transformer, trained from scratch in two stages on a single Kaggle T4.</p>
+      <table>
+        <tbody>
+          <tr><th>Architecture</th><td>decoder-only · RMSNorm · RoPE · SwiGLU (1,408)</td></tr>
+          <tr><th>Size</th><td>10 layers · d<sub>model</sub> 512 · 8 heads of 64 · 512-token context</td></tr>
+          <tr><th>Tokenizer</th><td>byte-level BPE, 8,192 tokens</td></tr>
+          <tr><th>Parameters</th><td>36,317,696</td></tr>
+          <tr><th>Stage 1</th><td>pretraining on 1.0M lines (120M characters) converted to chat spelling: 6,548 steps × 16,384 tokens = 107.3M tokens, 46 min</td></tr>
+          <tr><th>Stage 2</th><td>fine-tuning on a private chat corpus: 300 steps, 20% of each batch replayed from the corpus, 1 min 36 s</td></tr>
+        </tbody>
+      </table>
+      <figure class="wide">
+        <img src="../../assets/fig/kabyllm-courbes.png" alt="Loss curves. Left, pretraining: corpus loss falls from 9 to 3.6 while chat loss plateaus around 7.4. Right, fine-tuning: chat validation loss falls from 7.4 to 4.24." width="1400" height="440" loading="lazy">
+        <figcaption class="fig-caption"><b>Fig. 2</b> — Left, pretraining lowers the loss on the corpus, but the loss on chat messages plateaus around 7.4: books do not look like messages. Right, 300 fine-tuning steps bring it down to 4.24, and it was still falling at the end.</figcaption>
+      </figure>
+
+      <span class="step">05 · Results</span>
+      <h2>A real gain, but a modest one</h2>
+      <p>To compare models with different tokenizers, I measure <strong>bits per character</strong> on the same 6,600 validation messages (lower is better):</p>
+      <table>
+        <thead><tr><th>Model</th><th style="text-align:right">bits per character</th></tr></thead>
+        <tbody>
+          <tr><td>11.4M parameters, trained on the chat corpus only</td><td class="n">2.046</td></tr>
+          <tr><td>36.3M, pretrained only (never saw the chat corpus)</td><td class="n">3.445</td></tr>
+          <tr class="best"><td>36.3M, pretrained then fine-tuned</td><td class="n">1.977</td></tr>
+        </tbody>
+      </table>
+      <p>Pretraining alone is not enough: the style of messages is too far from that of books. Combined with fine-tuning, it beats the chat-only model by <strong>3.3%</strong>. A measurable improvement, not a breakthrough.</p>
+      <aside class="margin"><span class="label">Privacy</span>Text generated by the chat model is not shown: it imitates private conversations.</aside>
+
+      <span class="step">06 · Next</span>
+      <h2>Adapt rather than relearn everything</h2>
+      <p>With 40M tokens, a model trained from scratch will never learn to reason. The next route is to adapt a multilingual model: teach it the language and keep what it knows about the world. The pipeline is written and tested: PDF decoding, a filtered and deduplicated corpus, vocabulary extension (targeting about 1.9 tokens per word), continued pretraining, instruction tuning, evaluation and GGUF export to run on a laptop. The budget is estimated at 28 GPU hours, about a week of Kaggle quota; since a T4 supports neither bf16 nor FlashAttention-2, the code detects the card and falls back to fp16 with SDPA attention.</p>
+      <p>Most of the corpora come from the Kabyle NLP community (<a href="https://huggingface.co/Imsidag-community" rel="noopener">Imsidag-community</a>, <a href="https://huggingface.co/boffire" rel="noopener">boffire</a>), Tatoeba, Common Voice and Wikipedia. Giving that community back a merged, normalized corpus would probably be worth more than the model itself.</p>
+    </article>
+
+    <nav class="next" aria-label="Navigation">
+      <a href="../index.html#exp-kabyllm">← Back to the notebook</a>
+      <a href="https://github.com/MerabtiAmar/kabyllm" rel="noopener">Code, notebooks and tests on GitHub ↗</a>
+      <a href="verification-attributs.html">Exp. 02 · Product data →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <span>© 2026 Amar Merabti · text and photos all rights reserved</span>
+    <span><a href="mailto:merabtiamar91@gmail.com">merabtiamar91@gmail.com</a></span>
+  </div>
+</footer>
+</body>
+</html>

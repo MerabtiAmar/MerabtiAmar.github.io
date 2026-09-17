@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>KabyLLM, un modèle de langue kabyle — Amar Merabti</title>
+  <meta name="description" content="Entraîner de zéro un modèle de langue pour le kabyle, langue peu dotée : décodage de polices anciennes, corpus de 120 millions de caractères, Transformer de 36,3 M de paramètres, résultats mesurés.">
+  <meta name="author" content="Amar Merabti">
+  <link rel="canonical" href="https://merabtiamar.github.io/experiences/kabyllm.html">
+  <link rel="alternate" hreflang="fr" href="https://merabtiamar.github.io/experiences/kabyllm.html">
+  <link rel="alternate" hreflang="en" href="https://merabtiamar.github.io/en/experiences/kabyllm.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="KabyLLM — un modèle de langue kabyle entraîné de zéro">
+  <meta property="og:description" content="36,3 M de paramètres, 107 M de tokens, une T4 : ce qui a marché, ce qui n'a pas marché.">
+  <meta property="og:url" content="https://merabtiamar.github.io/experiences/kabyllm.html">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:site_name" content="Amar Merabti">
+  <meta property="og:image" content="https://merabtiamar.github.io/assets/img/og-fr.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Amar Merabti, data scientist — disponible en octobre 2026">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/css/site.css">
+</head>
+<body>
+<a class="skip" href="#contenu">Aller au contenu</a>
+
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="../index.html">Amar Merabti <span>· carnet</span></a>
+    <nav class="nav" aria-label="Sections">
+      <a href="../index.html#experiences">Expériences</a>
+      <a href="../index.html#parcours">Parcours</a>
+      <a href="../index.html#atelier">Atelier</a>
+      <a href="../index.html#recherche">Ce que je cherche</a>
+      <a href="../index.html#contact">Contact</a>
+    </nav>
+    <a class="lang" href="../en/experiences/kabyllm.html" hreflang="en" lang="en" title="English version">EN</a>
+  </div>
+</header>
+
+<main id="contenu">
+  <section class="case-hero">
+    <div class="wrap">
+      <a class="back" href="../index.html#exp-kabyllm">← Retour au carnet</a>
+      <p class="label" style="margin-top:28px">Exp. 01 · 2026 · projet personnel</p>
+      <h1>Un modèle de langue pour le kabyle, entraîné de zéro</h1>
+      <p class="question">Peut-on entraîner un modèle de langue pour une langue qui n'a presque pas de données&nbsp;?</p>
+      <div class="facts-row">
+        <div><div class="num">36,3 M</div><div class="cap">paramètres, architecture de type Llama</div></div>
+        <div><div class="num">107 M</div><div class="cap">tokens de pré-entraînement, en 46 minutes sur une T4</div></div>
+        <div><div class="num">1,977</div><div class="cap">bits par caractère en validation, −3,3 %</div></div>
+        <div><div class="num">40</div><div class="cap">tests de régression sur le pipeline de données</div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <article class="article">
+      <span class="step">01 · Le problème</span>
+      <h2>Une langue qui tient dans un disque dur</h2>
+      <p>Le kabyle est une langue berbère, ma langue maternelle. Tout le texte kabyle exploitable représente environ <strong>40 millions de tokens</strong> : trois à quatre ordres de grandeur de moins que ce qu'il faut pour entraîner un modèle généraliste. Une partie dort dans quelque 600 PDF publiés par la communauté, souvent composés avec des polices d'avant Unicode.</p>
+      <p>Même les modèles multilingues le lisent mal. J'ai mesuré combien de tokens il faut en moyenne pour écrire un mot kabyle avec leurs tokenizers, sur 400 000 caractères :</p>
+      <table>
+        <thead><tr><th>Tokenizer</th><th style="text-align:right">tokens par mot</th></tr></thead>
+        <tbody>
+          <tr class="best"><td>Qwen3 (1,7B / 4B)</td><td class="n">2,77</td></tr>
+          <tr><td>SmolLM3-3B</td><td class="n">2,96</td></tr>
+          <tr><td>Mistral-7B v0.3</td><td class="n">3,03</td></tr>
+          <tr><td>NLLB-200, entraîné avec du kabyle</td><td class="n">2,26</td></tr>
+        </tbody>
+      </table>
+      <p>Un texte anglais tourne autour de 1,3 token par mot : le kabyle coûte donc environ <strong>2,1 fois plus</strong> à Qwen3, en calcul comme en contexte. Contrairement à ce que je pensais, les lettres spéciales (ɣ, ḍ, ɛ) n'y sont presque pour rien (pénalité de 1,06) : c'est la morphologie qui coûte.</p>
+
+      <span class="step">02 · Premier essai</span>
+      <h2>Un modèle qui apprend par cœur</h2>
+      <p>Ma première version était un GPT classique de <strong>43,27 M de paramètres</strong> (8 couches, contexte de 128 tokens), entraîné sur 2 GPU T4 avec les <strong>995 159 tokens</strong> de Wikipédia en kabyle. Le tokenizer découpait sur les tirets et mettait tout en minuscules : 35 000 mots distincts, dont 42 % n'apparaissaient qu'une fois, et 6,5 % de mots inconnus.</p>
+      <p>Résultat : une perte de <strong>1,33 à l'entraînement et 6,21 en validation</strong>. Le modèle n'était pas sous-entraîné, il avait mémorisé son corpus. D'après la loi de Chinchilla, 1 M de tokens justifie un modèle d'environ 50 000 paramètres : le mien était près de 800 fois trop gros.</p>
+      <aside class="margin"><span class="label">Ce qui n'a pas marché</span>Une session Kaggle interrompue a aussi fait perdre 8 207 pas d'entraînement. Le pipeline suivant s'arrête de lui-même à 11 heures, avant la limite de 12 heures, et sauvegarde son état sur le Hub.</aside>
+
+      <span class="step">03 · Les données</span>
+      <h2>Déchiffrer avant d'entraîner</h2>
+      <p>La plus grosse partie du travail a été de rendre le texte utilisable. Trois problèmes propres au kabyle :</p>
+      <p><strong>Des lettres qui ont plusieurs formes.</strong> Le ɛ latin, le ε grec et le ԑ cyrillique désignent la même lettre ; ɤ remplace souvent ɣ. Chaque variante crée des mots en double dans le vocabulaire. Le pipeline les normalise au lieu de les rejeter.</p>
+      <p><strong>Des polices qui chiffrent le texte.</strong> Les livres anciens sont composés avec des polices où <code>$</code> veut dire ɣ et <code>î</code> veut dire ṭ. C'est un chiffrement par substitution, différent pour chaque police, et parfois entre le romain et l'italique d'un même livre. J'ai écrit un décodeur qui travaille police par police, et un solveur qui retrouve automatiquement la table d'une police inconnue en minimisant le taux de mots absents d'un dictionnaire kabyle.</p>
+      <p><strong>Des mots qui portent une phrase.</strong> Le kabyle est agglutinant : <em>yenna-yas</em> (« il lui a dit ») contient sujet, verbe et complément. Le pipeline conserve ces clitiques au lieu de les couper.</p>
+      <p>Chaque bug rencontré est devenu un test : 40 tests de régression, tous tirés de cas réels.</p>
+
+      <span class="step">04 · Le modèle</span>
+      <h2>Pré-entraîner sur les livres, affiner sur les messages</h2>
+      <p>La deuxième version est un Transformer décodeur de type Llama, entraîné de zéro en deux étapes sur une seule T4 de Kaggle.</p>
+      <table>
+        <tbody>
+          <tr><th>Architecture</th><td>décodeur seul · RMSNorm · RoPE · SwiGLU (1 408)</td></tr>
+          <tr><th>Taille</th><td>10 couches · d<sub>model</sub> 512 · 8 têtes de 64 · contexte 512 tokens</td></tr>
+          <tr><th>Tokenizer</th><td>BPE au niveau de l'octet, 8 192 tokens</td></tr>
+          <tr><th>Paramètres</th><td>36 317 696</td></tr>
+          <tr><th>Étape 1</th><td>pré-entraînement sur 1,0 M de lignes (120 M de caractères) converties à l'orthographe des messages : 6 548 pas × 16 384 tokens = 107,3 M de tokens, 46 min</td></tr>
+          <tr><th>Étape 2</th><td>fine-tuning sur un corpus de discussion privé : 300 pas, 20 % de corpus rejoué dans chaque lot, 1 min 36 s</td></tr>
+        </tbody>
+      </table>
+      <figure class="wide">
+        <img src="../assets/fig/kabyllm-courbes.png" alt="Courbes de perte. À gauche, pré-entraînement : la perte sur le corpus descend de 9 à 3,6 tandis que celle sur la discussion stagne autour de 7,4. À droite, fine-tuning : la perte de validation sur la discussion descend de 7,4 à 4,24." width="1400" height="440" loading="lazy">
+        <figcaption class="fig-caption"><b>Fig. 2</b> — À gauche, le pré-entraînement fait baisser la perte sur le corpus, mais celle sur la discussion stagne vers 7,4 : les livres ne ressemblent pas à des messages. À droite, 300 pas de fine-tuning la font tomber à 4,24, et elle baissait encore à la fin.</figcaption>
+      </figure>
+
+      <span class="step">05 · Résultats</span>
+      <h2>Un gain réel, mais modeste</h2>
+      <p>Pour comparer des modèles aux tokenizers différents, je mesure les <strong>bits par caractère</strong> sur les mêmes 6 600 messages de validation (plus bas, c'est mieux) :</p>
+      <table>
+        <thead><tr><th>Modèle</th><th style="text-align:right">bits par caractère</th></tr></thead>
+        <tbody>
+          <tr><td>11,4 M de paramètres, entraîné sur la discussion seule</td><td class="n">2,046</td></tr>
+          <tr><td>36,3 M, pré-entraîné seulement (n'a jamais vu la discussion)</td><td class="n">3,445</td></tr>
+          <tr class="best"><td>36,3 M, pré-entraîné puis affiné</td><td class="n">1,977</td></tr>
+        </tbody>
+      </table>
+      <p>Le pré-entraînement seul ne suffit pas : le style des messages est trop loin de celui des livres. Combiné au fine-tuning, il bat le modèle entraîné sur la discussion seule de <strong>3,3 %</strong>. C'est une amélioration mesurable, pas une percée.</p>
+      <aside class="margin"><span class="label">Vie privée</span>Les textes générés par le modèle de discussion ne sont pas montrés : ils imitent des conversations privées.</aside>
+
+      <span class="step">06 · La suite</span>
+      <h2>Adapter plutôt que tout réapprendre</h2>
+      <p>Avec 40 M de tokens, un modèle entraîné de zéro ne saura jamais raisonner. La voie suivante est d'adapter un modèle multilingue : lui apprendre la langue, et garder ce qu'il sait du monde. Le pipeline est écrit et testé : décodage des PDF, corpus filtré et dédoublonné, extension du vocabulaire (cible autour de 1,9 token par mot), pré-entraînement continu, instruction tuning, évaluation et export GGUF pour tourner sur un ordinateur portable. Le budget est estimé à 28 heures de GPU, environ une semaine de quota Kaggle ; comme une T4 ne gère ni le bf16 ni FlashAttention-2, le code détecte la carte et bascule en fp16 avec l'attention SDPA.</p>
+      <p>Les corpus viennent en grande partie de la communauté NLP kabyle (<a href="https://huggingface.co/Imsidag-community" rel="noopener">Imsidag-community</a>, <a href="https://huggingface.co/boffire" rel="noopener">boffire</a>), de Tatoeba, de Common Voice et de Wikipédia. Rendre à cette communauté un corpus fusionné et normalisé serait sans doute plus utile que le modèle lui-même.</p>
+    </article>
+
+    <nav class="next" aria-label="Navigation">
+      <a href="../index.html#exp-kabyllm">← Retour au carnet</a>
+      <a href="https://github.com/MerabtiAmar/kabyllm" rel="noopener">Code, notebooks et tests sur GitHub ↗</a>
+      <a href="verification-attributs.html">Exp. 02 · Fiches produit →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <span>© 2026 Amar Merabti · textes et photos tous droits réservés</span>
+    <span><a href="mailto:merabtiamar91@gmail.com">merabtiamar91@gmail.com</a></span>
+  </div>
+</footer>
+</body>
+</html>

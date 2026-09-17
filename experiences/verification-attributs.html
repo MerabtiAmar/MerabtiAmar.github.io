@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vérifier des fiches produit sans vérité de référence — Amar Merabti</title>
+  <meta name="description" content="Mémoire de M2 chez Nricher : vérifier automatiquement les attributs extraits de fiches produit par inférence textuelle et TabPFN. 68 % des valeurs validées à 99 % de précision.">
+  <meta name="author" content="Amar Merabti">
+  <link rel="canonical" href="https://merabtiamar.github.io/experiences/verification-attributs.html">
+  <link rel="alternate" hreflang="fr" href="https://merabtiamar.github.io/experiences/verification-attributs.html">
+  <link rel="alternate" hreflang="en" href="https://merabtiamar.github.io/en/experiences/verification-attributs.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Vérifier des fiches produit sans vérité de référence">
+  <meta property="og:description" content="Inférence textuelle + TabPFN sur 4 catalogues réels : 0,925 d'exactitude équilibrée, 68 % des valeurs automatisées à 99 % de précision.">
+  <meta property="og:url" content="https://merabtiamar.github.io/experiences/verification-attributs.html">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:site_name" content="Amar Merabti">
+  <meta property="og:image" content="https://merabtiamar.github.io/assets/img/og-fr.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Amar Merabti, data scientist — disponible en octobre 2026">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/css/site.css">
+</head>
+<body>
+<a class="skip" href="#contenu">Aller au contenu</a>
+
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="../index.html">Amar Merabti <span>· carnet</span></a>
+    <nav class="nav" aria-label="Sections">
+      <a href="../index.html#experiences">Expériences</a>
+      <a href="../index.html#parcours">Parcours</a>
+      <a href="../index.html#atelier">Atelier</a>
+      <a href="../index.html#recherche">Ce que je cherche</a>
+      <a href="../index.html#contact">Contact</a>
+    </nav>
+    <a class="lang" href="../en/experiences/verification-attributs.html" hreflang="en" lang="en" title="English version">EN</a>
+  </div>
+</header>
+
+<main id="contenu">
+  <section class="case-hero">
+    <div class="wrap">
+      <a class="back" href="../index.html#exp-nricher">← Retour au carnet</a>
+      <p class="label" style="margin-top:28px">Exp. 02 · 2026 · stage chez Nricher · mémoire de M2 encadré par Pr. Salima Benbernou</p>
+      <h1>Vérifier des fiches produit sans vérité de référence</h1>
+      <p class="question">Comment vérifier une valeur extraite d'une fiche produit quand le catalogue du client n'est pas fiable&nbsp;?</p>
+      <div class="facts-row">
+        <div><div class="num">68 %</div><div class="cap">des valeurs validées automatiquement, à 99 % de précision</div></div>
+        <div><div class="num">0,925</div><div class="cap">d'exactitude équilibrée, contre 0,808 pour la règle seule</div></div>
+        <div><div class="num">30 919</div><div class="cap">lignes réelles : 4 catalogues, 35 attributs</div></div>
+        <div><div class="num">−8,9</div><div class="cap">points sans les 4 scores d'inférence, −1,9 sans les 50 embeddings</div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <article class="article">
+      <span class="step">01 · Le problème</span>
+      <h2>Une extraction qui ne dit pas quand elle se trompe</h2>
+      <p>Nricher enrichit les catalogues de sites marchands. À partir du titre et de la description d'un produit, une chaîne le catégorise, extrait ses attributs (couleur, dimensions, matière, poids…) avec des expressions régulières, normalise les valeurs et produit une fiche structurée. Cette extraction est déterministe et facile à inspecter, mais elle ne donne aucun score de confiance.</p>
+      <p>Le contrôle se fait donc à la main : un account manager relit un échantillon de 1 000 produits, ce qui lui prend un à deux jours. Et la difficulté est réelle. Sur un canapé convertible, l'extraction lit « 140 × 190 » : ce sont les dimensions du matelas. Elle lit un poids de 32 kg : c'est la densité de la mousse. Le catalogue du client, de son côté, contient aussi des erreurs.</p>
+      <p>Il ne s'agit donc pas de comparer une prédiction à une vérité, mais <strong>d'arbitrer entre deux sources douteuses</strong>.</p>
+      <aside class="margin"><span class="label">Pourquoi pas un LLM juge&nbsp;?</span>Je l'ai écarté pour trois raisons : il n'est pas déterministe, il ne fournit pas de seuil que l'on peut déplacer, et il coûte trop cher par valeur vérifiée.</aside>
+
+      <span class="step">02 · La référence</span>
+      <h2>Construire une vérité sans rien annoter</h2>
+      <ul>
+        <li>Quand le catalogue et l'extraction concordent après normalisation, je considère la valeur comme correcte.</li>
+        <li>Ce jeu ne contient alors que des accords. J'injecte des erreurs dans 20 % des lignes en remplaçant la valeur par une autre valeur réelle du même attribut : une erreur trop grossière n'apprendrait rien. La graine est fixe, tout est reproductible.</li>
+        <li>J'ajoute un cas « information absente » en retirant l'information du texte sur environ 10 % des lignes de chaque attribut.</li>
+      </ul>
+      <p>Le banc d'essai réunit <strong>4 catalogues de production, 35 attributs et 30 919 lignes</strong>. Un point de repère : 73,3 % des valeurs sont déjà justes sans rien faire. Toute méthode doit faire mieux que ça.</p>
+
+      <span class="step">03 · Le capteur</span>
+      <h2>L'inférence textuelle, phrase par phrase</h2>
+      <p>La valeur à vérifier devient une hypothèse, par exemple « la hauteur est 84 ». Le modèle mDeBERTa-v3, multilingue car les catalogues sont en français, la confronte à chaque phrase de la description et renvoie trois probabilités : implication, contradiction ou neutralité. Les descriptions sont découpées en phrases (21 en médiane), car ces modèles se dégradent sur les textes longs, et je garde le maximum : une seule phrase qui soutient la valeur suffit.</p>
+      <p>Au meilleur seuil (0,70 sur l'implication), cette règle atteint <strong>0,808 d'exactitude équilibrée et 0,919 de précision</strong>.</p>
+      <p>En analysant les attributs un par un, j'ai trouvé ce qui les rend difficiles à vérifier. Ce n'est pas le nombre de valeurs possibles, c'est <strong>la négation</strong> : les attributs qui s'expriment par une phrase négative (« non déhoussable ») plafonnent entre 0,437 et 0,854 d'AUC, les autres atteignent 0,968 à 0,997.</p>
+
+      <span class="step">04 · La décision</span>
+      <h2>Un modèle tabulaire qu'on n'entraîne pas</h2>
+      <p>TabPFN est pré-entraîné sur des millions de jeux de données synthétiques, puis gelé. On ne l'entraîne pas : il reçoit les exemples étiquetés dans son contexte et prédit en un seul passage. Assez léger pour des milliers d'exécutions sur un ordinateur portable, sans GPU, environ 4 secondes chacune. Ne lisant pas le texte, il reçoit une description encodée par BGE-M3 puis réduite à 50 composantes par ACP, avec ou sans les scores d'inférence ; un modèle par attribut.</p>
+      <figure class="chart wide">
+<!--CHART:nricher-->
+<div class="chart-legend">
+<span><i class="key dot-accent"></i>modèle appris avec les scores d&#x27;inférence</span>
+<span><i class="key dot-hollow"></i>modèle appris sans les scores</span>
+<span><i class="key diamond-ink"></i>règle sur les scores, sans apprentissage</span>
+</div>
+<div class="dots">
+<div class="dots-row dots-axis" aria-hidden="true"><span class="dots-label"></span><span class="dots-track">
+<span class="tick" style="left:0.00%">0,70</span>
+<span class="tick" style="left:20.00%">0,75</span>
+<span class="tick" style="left:40.00%">0,80</span>
+<span class="tick" style="left:60.00%">0,85</span>
+<span class="tick" style="left:80.00%">0,90</span>
+<span class="tick" style="left:100.00%">0,95</span>
+</span><span class="dots-vals"></span></div>
+<div class="dots-row">
+<span class="dots-label">TabPFN<small>embeddings + scores d&#x27;inférence · 55 variables</small></span><span class="dots-track">
+<span class="grid" style="left:0.00%"></span>
+<span class="grid" style="left:20.00%"></span>
+<span class="grid" style="left:40.00%"></span>
+<span class="grid" style="left:60.00%"></span>
+<span class="grid" style="left:80.00%"></span>
+<span class="grid" style="left:100.00%"></span>
+<i class="m dot-accent" style="left:90.00%" title="TabPFN · modèle appris avec les scores d&#x27;inférence : 0,925"></i>
+</span>
+<span class="dots-vals">0,925</span>
+</div>
+<div class="dots-row">
+<span class="dots-label">TabPFN<small>scores d&#x27;inférence seuls · 5 variables</small></span><span class="dots-track">
+<span class="grid" style="left:0.00%"></span>
+<span class="grid" style="left:20.00%"></span>
+<span class="grid" style="left:40.00%"></span>
+<span class="grid" style="left:60.00%"></span>
+<span class="grid" style="left:80.00%"></span>
+<span class="grid" style="left:100.00%"></span>
+<i class="m dot-accent" style="left:82.40%" title="TabPFN · modèle appris avec les scores d&#x27;inférence : 0,906"></i>
+</span>
+<span class="dots-vals">0,906</span>
+</div>
+<div class="dots-row">
+<span class="dots-label">TabSTAR<small>texte brut + scores d&#x27;inférence</small></span><span class="dots-track">
+<span class="grid" style="left:0.00%"></span>
+<span class="grid" style="left:20.00%"></span>
+<span class="grid" style="left:40.00%"></span>
+<span class="grid" style="left:60.00%"></span>
+<span class="grid" style="left:80.00%"></span>
+<span class="grid" style="left:100.00%"></span>
+<i class="m dot-accent" style="left:79.20%" title="TabSTAR · modèle appris avec les scores d&#x27;inférence : 0,898"></i>
+</span>
+<span class="dots-vals">0,898</span>
+</div>
+<div class="dots-row">
+<span class="dots-label">TabPFN<small>embeddings seuls</small></span><span class="dots-track">
+<span class="grid" style="left:0.00%"></span>
+<span class="grid" style="left:20.00%"></span>
+<span class="grid" style="left:40.00%"></span>
+<span class="grid" style="left:60.00%"></span>
+<span class="grid" style="left:80.00%"></span>
+<span class="grid" style="left:100.00%"></span>
+<i class="m dot-hollow" style="left:54.40%" title="TabPFN · modèle appris sans les scores : 0,836"></i>
+</span>
+<span class="dots-vals">0,836</span>
+</div>
+<div class="dots-row">
+<span class="dots-label">Règle d&#x27;inférence<small>seuil 0,70, sans apprentissage</small></span><span class="dots-track">
+<span class="grid" style="left:0.00%"></span>
+<span class="grid" style="left:20.00%"></span>
+<span class="grid" style="left:40.00%"></span>
+<span class="grid" style="left:60.00%"></span>
+<span class="grid" style="left:80.00%"></span>
+<span class="grid" style="left:100.00%"></span>
+<i class="m diamond-ink" style="left:43.20%" title="Règle d&#x27;inférence · règle sur les scores, sans apprentissage : 0,808"></i>
+</span>
+<span class="dots-vals">0,808</span>
+</div>
+<div class="dots-row">
+<span class="dots-label">TabSTAR<small>texte brut seul</small></span><span class="dots-track">
+<span class="grid" style="left:0.00%"></span>
+<span class="grid" style="left:20.00%"></span>
+<span class="grid" style="left:40.00%"></span>
+<span class="grid" style="left:60.00%"></span>
+<span class="grid" style="left:80.00%"></span>
+<span class="grid" style="left:100.00%"></span>
+<i class="m dot-hollow" style="left:16.80%" title="TabSTAR · modèle appris sans les scores : 0,742"></i>
+</span>
+<span class="dots-vals">0,742</span>
+</div>
+</div>
+<!--/CHART:nricher-->
+        <figcaption class="fig-caption"><b>Fig. 1</b> — Exactitude équilibrée moyenne sur les 35 attributs. Les trois modèles appris qui reçoivent les scores d'inférence arrivent en tête ; TabPFN avec ces 5 variables seulement reste à moins de 2 points du meilleur modèle, qui en utilise 55.</figcaption>
+      </figure>
+      <p>L'ablation appariée (test de Wilcoxon) tranche : retirer les 4 scores d'inférence coûte <strong>8,9 points</strong>, retirer les 50 composantes d'embedding n'en coûte que <strong>1,9</strong>. Quatre nombres calculés face à la valeur à vérifier valent plus que cinquante composantes calculées à l'aveugle : c'est l'orientation de la représentation du texte, pas sa richesse, qui décide. Au passage, l'écart-type entre attributs passe de 0,128 à 0,079 : le modèle est meilleur et plus régulier.</p>
+      <p>TabSTAR permettait de tester l'inverse : un modèle pré-entraîné sur 350 jeux de données réels, avec un encodeur de texte entraînable, qui lit la description brute. Seul, il fait moins bien que la règle d'inférence (0,742). Avec les scores, il gagne 15,6 points (0,898) mais reste derrière TabPFN, pour un temps environ 28 fois plus long (116 s par exécution, sur GPU).</p>
+      <aside class="margin"><span class="label">À nuancer</span>TabSTAR tournait sur GPU et TabPFN sur un portable : les temps ne sont pas strictement comparables, mais l'ordre de grandeur compte pour un choix industriel.</aside>
+
+      <span class="step">05 · En production</span>
+      <h2>Un seul réglage : le seuil</h2>
+      <p>L'architecture que j'ai proposée se branche sur la chaîne existante sans la modifier :</p>
+      <ol class="flow wide" aria-label="Chaîne de vérification proposée">
+        <li>Titre et description du produit<small>chaîne existante : catégorisation, extraction par règles, normalisation</small></li>
+        <li class="q">Le catalogue du client et l'extraction sont-ils d'accord&nbsp;?
+          <div class="split">
+            <div><b>Oui</b> → la ligne rejoint le corpus d'entraînement. Le système se nourrit de son propre flux, sans annotation.</div>
+            <div><b>Non</b> → la ligne part en vérification.</div>
+          </div>
+        </li>
+        <li class="new">Vérification<small>scores d'inférence (mDeBERTa-v3) + description encodée (BGE-M3, ACP) + code de la valeur candidate → TabPFN → probabilité que la valeur soit juste</small></li>
+        <li class="q">La probabilité dépasse-t-elle le seuil&nbsp;?
+          <div class="split">
+            <div><b>Oui</b> → la valeur part directement dans la fiche produit.</div>
+            <div><b>Non</b> → relecture par un data developer.</div>
+          </div>
+        </li>
+      </ol>
+      <p>Le seuil se déplace sans rien réentraîner. Réglé pour 99 % de précision, il valide automatiquement <strong>68 % des valeurs</strong> : la relecture humaine ne porte plus que sur un tiers du volume, et ce tiers est choisi, pas tiré au hasard.</p>
+
+      <span class="step">06 · Les limites</span>
+      <h2>Ce que ce système ne voit pas</h2>
+      <ul>
+        <li><strong>La référence vient d'un accord entre deux sources.</strong> Si le catalogue et l'extraction partagent le même biais, il passe inaperçu. Il faudrait annoter un échantillon indépendamment du texte.</li>
+        <li><strong>Les erreurs sont injectées, pas observées.</strong> La mauvaise attribution d'une valeur, l'erreur la plus fréquente en production, n'est pas reproduite. La prochaine étape est de valider sur de vraies erreurs.</li>
+        <li><strong>Détecter une absence n'est pas vérifier.</strong> Sans valeur candidate, il n'y a pas d'hypothèse, donc pas de score : sur le cas « information absente », l'exactitude plafonne à 0,57. Ce cas mérite une tâche à part.</li>
+      </ul>
+      <aside class="margin"><span class="label">Code</span>Le code appartient à Nricher et n'est pas publié. Les chiffres de cette page viennent du mémoire, sans aucune donnée client.</aside>
+    </article>
+
+    <nav class="next" aria-label="Navigation entre expériences">
+      <a href="kabyllm.html">← Exp. 01 · KabyLLM</a>
+      <a href="football-quadrupede.html">Exp. 03 · Agents sans règles →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <span>© 2026 Amar Merabti · textes et photos tous droits réservés</span>
+    <span><a href="mailto:merabtiamar91@gmail.com">merabtiamar91@gmail.com</a></span>
+  </div>
+</footer>
+</body>
+</html>

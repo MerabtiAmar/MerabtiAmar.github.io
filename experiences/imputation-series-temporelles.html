@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Combler les trous de 3 127 compteurs électriques — Amar Merabti</title>
+  <meta name="description" content="Imputation de séries temporelles de consommation électrique : une décomposition STL réécrite pour GPU bat un LSTM, un U-Net et un Transformer. Projet encadré par Pr. Themis Palpanas.">
+  <meta name="author" content="Amar Merabti">
+  <link rel="canonical" href="https://merabtiamar.github.io/experiences/imputation-series-temporelles.html">
+  <link rel="alternate" hreflang="fr" href="https://merabtiamar.github.io/experiences/imputation-series-temporelles.html">
+  <link rel="alternate" hreflang="en" href="https://merabtiamar.github.io/en/experiences/imputation-series-temporelles.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Combler les trous de 3 127 compteurs électriques">
+  <meta property="og:description" content="Deep learning contre décomposition classique sur des dizaines de millions de pas de temps : la méthode la plus simple gagne.">
+  <meta property="og:url" content="https://merabtiamar.github.io/experiences/imputation-series-temporelles.html">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:site_name" content="Amar Merabti">
+  <meta property="og:image" content="https://merabtiamar.github.io/assets/img/og-fr.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Amar Merabti, data scientist — disponible en octobre 2026">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/css/site.css">
+</head>
+<body>
+<a class="skip" href="#contenu">Aller au contenu</a>
+
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="../index.html">Amar Merabti <span>· carnet</span></a>
+    <nav class="nav" aria-label="Sections">
+      <a href="../index.html#experiences">Expériences</a>
+      <a href="../index.html#parcours">Parcours</a>
+      <a href="../index.html#atelier">Atelier</a>
+      <a href="../index.html#recherche">Ce que je cherche</a>
+      <a href="../index.html#contact">Contact</a>
+    </nav>
+    <a class="lang" href="../en/experiences/imputation-series-temporelles.html" hreflang="en" lang="en" title="English version">EN</a>
+  </div>
+</header>
+
+<main id="contenu">
+  <section class="case-hero">
+    <div class="wrap">
+      <a class="back" href="../index.html#exp-imputation">← Retour au carnet</a>
+      <p class="label" style="margin-top:28px">Exp. 04 · 2025 · M1 DCI · projet encadré par Pr. Themis Palpanas · avec Kaci Sofiane Agouni et Aghilas Ould Braham</p>
+      <h1>Combler les trous de 3 127 compteurs électriques</h1>
+      <p class="question">Pour combler les trous d'une série temporelle, le deep learning bat-il une méthode classique&nbsp;?</p>
+      <div class="facts-row">
+        <div><div class="num">0,262</div><div class="cap">MAE de la STL sur GPU, sur les foyers connus</div></div>
+        <div><div class="num">0,279</div><div class="cap">sur 1 098 foyers jamais vus, avec 50 % de valeurs masquées</div></div>
+        <div><div class="num">12 864</div><div class="cap">mesures par série : une toutes les 30 minutes pendant 268 jours</div></div>
+        <div><div class="num">5</div><div class="cap">méthodes comparées, dont 3 modèles profonds</div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <article class="article">
+      <span class="step">01 · Les données</span>
+      <h2>Deux scénarios, un challenge</h2>
+      <p>Des compteurs intelligents relèvent la consommation électrique de chaque foyer toutes les 30 minutes. Une partie des relevés a été masquée ; il faut les reconstruire avec l'erreur absolue moyenne (MAE) la plus faible possible, dans le cadre d'un challenge Kaggle interne au master.</p>
+      <table>
+        <thead><tr><th>Scénario</th><th>Entraînement</th><th>Test</th><th style="text-align:right">Masqué</th></tr></thead>
+        <tbody>
+          <tr><td>Step A</td><td>3 127 foyers complets</td><td>les mêmes foyers</td><td class="n">30 %</td></tr>
+          <tr><td>Step B</td><td>les mêmes 3 127 foyers</td><td>1 098 nouveaux foyers</td><td class="n">50 %</td></tr>
+        </tbody>
+      </table>
+      <p>La distribution des consommations est très asymétrique, avec de longues queues. Avant toute méthode, les valeurs hors de l'intervalle [Q1 − 1,5·IQR ; Q3 + 1,5·IQR] sont ramenées au quartile le plus proche, pour que des relevés aberrants ne faussent pas l'apprentissage.</p>
+
+      <span class="step">02 · Les méthodes</span>
+      <h2>Du plus simple au plus profond</h2>
+      <table>
+        <thead><tr><th>Méthode</th><th>Principe</th></tr></thead>
+        <tbody>
+          <tr><td>Plus proche voisin</td><td>copier les valeurs du foyer d'entraînement le plus proche, mesuré sur les positions observées</td></tr>
+          <tr><td>STL sur GPU</td><td>décomposition tendance + saisonnalité, réécrite en PyTorch</td></tr>
+          <tr><td>Autoencodeur LSTM</td><td>reconstruction de fenêtres masquées</td></tr>
+          <tr><td>PConv U-Net</td><td>inpainting 1D : les convolutions ne voient que les valeurs observées</td></tr>
+          <tr><td>Transformer</td><td>imputation auto-supervisée par masquage, entraînement sur plusieurs GPU</td></tr>
+        </tbody>
+      </table>
+      <p>La STL, qui a gagné, tient en quelques lignes. Elle part de l'imputation du plus proche voisin, puis répète 30 fois :</p>
+      <ol>
+        <li>estimer la tendance par moyenne mobile, calculée comme une convolution 1D sur GPU ;</li>
+        <li>estimer la saisonnalité par la médiane des résidus à chaque phase du cycle, par exemple journalier (48 mesures) ou hebdomadaire (336) ;</li>
+        <li>reconstruire tendance + saisonnalité et ne réinjecter le résultat <strong>que</strong> sur les positions manquantes.</li>
+      </ol>
+      <aside class="margin"><span class="label">Matériel</span>Kaggle : 4 GPU NVIDIA L4 de 23 Go, 48 threads, environ 170 Go de mémoire, PyTorch 2.5.</aside>
+
+      <span class="step">03 · Résultats</span>
+      <h2>La méthode la plus simple gagne</h2>
+      <figure class="chart wide">
+<!--CHART:imputation-->
+<div class="chart-legend">
+<span><i class="key dot-accent"></i>Step A : mêmes foyers, 30 % masqués</span>
+<span><i class="key sq-ink"></i>Step B : nouveaux foyers, 50 % masqués</span>
+</div>
+<div class="dots">
+<div class="dots-row dots-axis" aria-hidden="true"><span class="dots-label"></span><span class="dots-track">
+<span class="tick" style="left:0.00%">0,25</span>
+<span class="tick" style="left:18.18%">0,27</span>
+<span class="tick" style="left:36.36%">0,29</span>
+<span class="tick" style="left:54.55%">0,31</span>
+<span class="tick" style="left:72.73%">0,33</span>
+<span class="tick" style="left:90.91%">0,35</span>
+</span><span class="dots-vals"></span></div>
+<div class="dots-row">
+<span class="dots-label">STL sur GPU<small>décomposition tendance + saisonnalité</small></span><span class="dots-track">
+<span class="grid" style="left:0.00%"></span>
+<span class="grid" style="left:18.18%"></span>
+<span class="grid" style="left:36.36%"></span>
+<span class="grid" style="left:54.55%"></span>
+<span class="grid" style="left:72.73%"></span>
+<span class="grid" style="left:90.91%"></span>
+<i class="m dot-accent" style="left:10.98%" title="STL sur GPU · Step A : mêmes foyers, 30 % masqués : 0,262"></i>
+<i class="m sq-ink" style="left:26.59%" title="STL sur GPU · Step B : nouveaux foyers, 50 % masqués : 0,279"></i>
+</span>
+<span class="dots-vals">0,262 · 0,279</span>
+</div>
+<div class="dots-row">
+<span class="dots-label">Plus proche voisin<small>copie du foyer le plus proche</small></span><span class="dots-track">
+<span class="grid" style="left:0.00%"></span>
+<span class="grid" style="left:18.18%"></span>
+<span class="grid" style="left:36.36%"></span>
+<span class="grid" style="left:54.55%"></span>
+<span class="grid" style="left:72.73%"></span>
+<span class="grid" style="left:90.91%"></span>
+<i class="m dot-accent" style="left:56.72%" title="Plus proche voisin · Step A : mêmes foyers, 30 % masqués : 0,312"></i>
+<i class="m sq-ink" style="left:55.35%" title="Plus proche voisin · Step B : nouveaux foyers, 50 % masqués : 0,311"></i>
+</span>
+<span class="dots-vals">0,312 · 0,311</span>
+</div>
+<div class="dots-row">
+<span class="dots-label">PConv U-Net<small>convolutions partielles</small></span><span class="dots-track">
+<span class="grid" style="left:0.00%"></span>
+<span class="grid" style="left:18.18%"></span>
+<span class="grid" style="left:36.36%"></span>
+<span class="grid" style="left:54.55%"></span>
+<span class="grid" style="left:72.73%"></span>
+<span class="grid" style="left:90.91%"></span>
+<i class="m dot-accent" style="left:69.60%" title="PConv U-Net · Step A : mêmes foyers, 30 % masqués : 0,327"></i>
+<i class="m sq-ink" style="left:75.90%" title="PConv U-Net · Step B : nouveaux foyers, 50 % masqués : 0,333"></i>
+</span>
+<span class="dots-vals">0,327 · 0,333</span>
+</div>
+<div class="dots-row">
+<span class="dots-label">Transformer<small>auto-supervisé par masquage</small></span><span class="dots-track">
+<span class="grid" style="left:0.00%"></span>
+<span class="grid" style="left:18.18%"></span>
+<span class="grid" style="left:36.36%"></span>
+<span class="grid" style="left:54.55%"></span>
+<span class="grid" style="left:72.73%"></span>
+<span class="grid" style="left:90.91%"></span>
+<i class="m dot-accent" style="left:73.51%" title="Transformer · Step A : mêmes foyers, 30 % masqués : 0,331"></i>
+<i class="m sq-ink" style="left:85.67%" title="Transformer · Step B : nouveaux foyers, 50 % masqués : 0,344"></i>
+</span>
+<span class="dots-vals">0,331 · 0,344</span>
+</div>
+<div class="dots-row">
+<span class="dots-label">Autoencodeur LSTM<small>fenêtres masquées</small></span><span class="dots-track">
+<span class="grid" style="left:0.00%"></span>
+<span class="grid" style="left:18.18%"></span>
+<span class="grid" style="left:36.36%"></span>
+<span class="grid" style="left:54.55%"></span>
+<span class="grid" style="left:72.73%"></span>
+<span class="grid" style="left:90.91%"></span>
+<i class="m dot-accent" style="left:77.26%" title="Autoencodeur LSTM · Step A : mêmes foyers, 30 % masqués : 0,335"></i>
+<i class="m sq-ink" style="left:96.15%" title="Autoencodeur LSTM · Step B : nouveaux foyers, 50 % masqués : 0,356"></i>
+</span>
+<span class="dots-vals">0,335 · 0,356</span>
+</div>
+</div>
+<!--/CHART:imputation-->
+        <figcaption class="fig-caption"><b>Fig. 1</b> — MAE sur les deux scénarios, plus bas = mieux. La STL arrive première sur les deux, y compris sur des foyers qu'elle n'a jamais vus.</figcaption>
+      </figure>
+      <figure class="wide">
+        <img src="../assets/fig/imputation-temps.png" alt="Temps d'entraînement et de prédiction en minutes : quelques minutes pour le plus proche voisin et la STL, jusqu'à environ 170 minutes d'entraînement pour le Transformer" width="640" height="480" loading="lazy" style="max-width:560px">
+        <figcaption class="fig-caption"><b>Fig. 2</b> — Temps d'entraînement et de prédiction, en minutes. La STL et le plus proche voisin n'ont pas d'entraînement ; le Transformer s'entraîne près de trois heures.</figcaption>
+      </figure>
+
+      <span class="step">04 · Pourquoi</span>
+      <h2>Le bon biais inductif vaut mieux qu'un gros modèle</h2>
+      <ul>
+        <li><strong>La structure des données.</strong> La consommation électrique est faite d'une tendance et de cycles journaliers et hebdomadaires : c'est exactement ce que la STL suppose.</li>
+        <li><strong>L'échelle.</strong> 3 127 séries de 12 864 points, soit des dizaines de millions de pas de temps : les modèles à grande capacité convergent mal dans un nombre raisonnable d'époques.</li>
+        <li><strong>Le budget.</strong> Pour tenir sur 4 GPU, il a fallu réduire la profondeur, les dimensions et la longueur des séquences des modèles profonds, au prix de leur capacité de représentation.</li>
+      </ul>
+      <aside class="margin"><span class="label">Ce qui n'a pas marché</span>Les trois modèles profonds, avec jusqu'à près de trois heures d'entraînement, restent entre 0,327 et 0,335 de MAE sur le Step A : moins bien que la simple copie du foyer le plus proche (0,312).</aside>
+      <p>Les modèles profonds restent une piste, mais il leur faudrait plus de calcul, une architecture plus légère ou un pré-entraînement en plusieurs étapes pour battre cette référence.</p>
+    </article>
+
+    <nav class="next" aria-label="Navigation entre expériences">
+      <a href="football-quadrupede.html">← Exp. 03 · Agents sans règles</a>
+      <a href="https://github.com/MerabtiAmar/time-series-imputation" rel="noopener">Code et rapport ↗</a>
+      <a href="benchmark-llm.html">Exp. 05 · Benchmark de LLM →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <span>© 2026 Amar Merabti · textes et photos tous droits réservés</span>
+    <span><a href="mailto:merabtiamar91@gmail.com">merabtiamar91@gmail.com</a></span>
+  </div>
+</footer>
+</body>
+</html>

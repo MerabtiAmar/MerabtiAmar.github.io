@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Predicting well measurements where they are missing — Amar Merabti</title>
+  <meta name="description" content="Well logs at ENAGEO (Sonatrach group): reconstructing missing measurements with LSTMs (MAE 12.7) and predicting a series from one well to another, correlation raised from 0.52 to 0.82.">
+  <meta name="author" content="Amar Merabti">
+  <link rel="canonical" href="https://merabtiamar.github.io/en/experiences/diagraphies-enageo.html">
+  <link rel="alternate" hreflang="fr" href="https://merabtiamar.github.io/experiences/diagraphies-enageo.html">
+  <link rel="alternate" hreflang="en" href="https://merabtiamar.github.io/en/experiences/diagraphies-enageo.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Predicting well measurements where they are missing">
+  <meta property="og:description" content="From internship to contract at ENAGEO: well logs treated as time series, LSTMs, and cross-well correlation raised from 0.52 to 0.82.">
+  <meta property="og:url" content="https://merabtiamar.github.io/en/experiences/diagraphies-enageo.html">
+  <meta property="og:locale" content="en_GB">
+  <meta property="og:site_name" content="Amar Merabti">
+  <meta property="og:image" content="https://merabtiamar.github.io/assets/img/og-en.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Amar Merabti, data scientist — available from October 2026">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="../../assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../../assets/css/site.css">
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="../index.html">Amar Merabti <span>· notebook</span></a>
+    <nav class="nav" aria-label="Sections">
+      <a href="../index.html#experiments">Experiments</a>
+      <a href="../index.html#path">Path</a>
+      <a href="../index.html#workshop">Workshop</a>
+      <a href="../index.html#looking-for">What I'm looking for</a>
+      <a href="../index.html#contact">Contact</a>
+    </nav>
+    <a class="lang" href="../../experiences/diagraphies-enageo.html" hreflang="fr" lang="fr" title="Version française">FR</a>
+  </div>
+</header>
+
+<main id="content">
+  <section class="case-hero">
+    <div class="wrap">
+      <a class="back" href="../index.html#exp-enageo">← Back to the notebook</a>
+      <p class="label" style="margin-top:28px">Exp. 06 · 2023–2024 · ENAGEO, Sonatrach group · bachelor's internship, then fixed-term contract</p>
+      <h1>Predicting well measurements where they are missing</h1>
+      <p class="question">Can you reconstruct a well measurement where it is missing, and predict it in another well?</p>
+      <div class="facts-row">
+        <div><div class="num">0.52 → 0.82</div><div class="cap">cross-well correlation, from internship (MLP) to contract (LSTM)</div></div>
+        <div><div class="num">21.4 → 15.8</div><div class="cap">cross-well MAE (RMSE 27.6 → 20.2): 20 to 30% less error</div></div>
+        <div><div class="num">12.7</div><div class="cap">MAE when filling the gaps of a series within the same well (RMSE 15.2)</div></div>
+        <div><div class="num">5</div><div class="cap">algorithms available to geophysicists, without writing code</div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <article class="article">
+      <span class="step">01 · Context</span>
+      <h2>Costly measurements, often incomplete</h2>
+      <p>ENAGEO is Algeria's national geophysics company, part of the Sonatrach group. To understand the subsurface, rock properties such as elasticity or density are measured along a borehole: the measuring tool is placed at a given depth, takes its measurement, then moves deeper, at regular intervals. Other properties are obtained through seismic methods. Each property therefore forms a series indexed by depth: a <strong>well log</strong>.</p>
+      <p>These series are often incomplete: faulty equipment, data lost during transfer or deleted. Above all, the measurements are very expensive. Hence two questions: can you <strong>reconstruct a series where it is missing</strong>? And can you <strong>predict it in another well</strong>, from a well that has already been measured?</p>
+
+      <span class="step">02 · The internship</span>
+      <h2>February – June 2023: a first cross-well generalization</h2>
+      <p>For my bachelor's thesis, I worked on the logs of 3 wells, evaluating models on an entire well never seen during training:</p>
+      <table>
+        <thead><tr><th>Model</th><th style="text-align:right">Correlation (r)</th></tr></thead>
+        <tbody>
+          <tr><td>Linear regression</td><td class="n">0.15</td></tr>
+          <tr><td>SVM with RBF kernel</td><td class="n">0.29</td></tr>
+          <tr class="best"><td>MLP 100/50, ReLU</td><td class="n">0.52 (MAE 21.4, RMSE 27.6)</td></tr>
+        </tbody>
+      </table>
+      <aside class="margin"><span class="label">What did not work</span>Even the best model remains insufficient on heterogeneous geological formations.</aside>
+      <p>I also delivered a desktop application so that geophysicists could train models and fill in their measurements without writing code:</p>
+      <pre>Java Swing interface
+ ├─ login: MySQL accounts, administrator and user roles
+ ├─ training: CSV import → editable grid → python train.py &lt;algorithm&gt;
+ └─ prediction: CSV with gaps → python predict.py &lt;algorithm&gt; → completed table → export</pre>
+      <p>Five algorithms are available: linear regression, SVM, MLP, random forest and gradient boosting. Java and Python exchange CSV files, and computations run in the background without freezing the interface.</p>
+
+      <span class="step">03 · The contract</span>
+      <h2>July 2023 – July 2024: well logs as time series</h2>
+      <p>I then worked at ENAGEO on a part-time fixed-term contract as an AI developer, alongside the first year of my MSc. The idea: treat each depth-indexed series as a time series, with its trend, seasonality and cycles, and use deep learning models, mainly LSTMs and RNNs. Two directions:</p>
+      <p><strong>1. Filling the gaps of a series within the same well.</strong> The model learns from the measured parts of a series and predicts its missing values. With LSTMs I reach an <strong>MAE of 12.7</strong> and an <strong>RMSE of 15.2</strong>, using an architecture close to the one in my <a href="imputation-series-temporelles.html">time series imputation project</a>.</p>
+      <p><strong>2. Predicting a series from one well to another.</strong> Continuing the internship work, an LSTM is trained on one well's series, then predicts the same property in another well. Compared with the internship, correlation goes from <strong>0.52 to 0.82</strong>, MAE from <strong>21.4 to 15.8</strong> and RMSE from <strong>27.6 to 20.2</strong>: 20 to 30% less error.</p>
+      <aside class="margin"><span class="label">What did not work</span>Even at 0.82, cross-well prediction was not yet good enough for the company to use. It was the start of a path: I left the project in development when I moved to France.</aside>
+      <p>The company's well logs are confidential, as are the plots produced with its internal software. The public repository contains the internship application and synthetic well logs in the same format, for testing.</p>
+    </article>
+
+    <nav class="next" aria-label="Navigation between experiments">
+      <a href="benchmark-llm.html">← Exp. 05 · LLM benchmark</a>
+      <a href="https://github.com/MerabtiAmar/well-log-imputation" rel="noopener">Internship application and synthetic data ↗</a>
+      <a href="../index.html#path">See the path →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <span>© 2026 Amar Merabti · text and photos all rights reserved</span>
+    <span><a href="mailto:merabtiamar91@gmail.com">merabtiamar91@gmail.com</a></span>
+  </div>
+</footer>
+</body>
+</html>

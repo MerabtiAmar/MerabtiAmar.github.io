@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Three 7B LLMs, three tests — Amar Merabti</title>
+  <meta name="description" content="Reproducible benchmark of LLaMA 2, Mistral and DeepSeek-R1 (7B) on GSM8K, HellaSwag and HumanEval with Ollama: scores, latency and Python error analysis.">
+  <meta name="author" content="Amar Merabti">
+  <link rel="canonical" href="https://merabtiamar.github.io/en/experiences/benchmark-llm.html">
+  <link rel="alternate" hreflang="fr" href="https://merabtiamar.github.io/experiences/benchmark-llm.html">
+  <link rel="alternate" hreflang="en" href="https://merabtiamar.github.io/en/experiences/benchmark-llm.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Three 7-billion-parameter LLMs, three tests">
+  <meta property="og:description" content="DeepSeek-R1 solves 128 HumanEval problems out of 164, but gives a usable answer to only 258 maths questions out of 500.">
+  <meta property="og:url" content="https://merabtiamar.github.io/en/experiences/benchmark-llm.html">
+  <meta property="og:locale" content="en_GB">
+  <meta property="og:site_name" content="Amar Merabti">
+  <meta property="og:image" content="https://merabtiamar.github.io/assets/img/og-en.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Amar Merabti, data scientist — available from October 2026">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="../../assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../../assets/css/site.css">
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="../index.html">Amar Merabti <span>· notebook</span></a>
+    <nav class="nav" aria-label="Sections">
+      <a href="../index.html#experiments">Experiments</a>
+      <a href="../index.html#path">Path</a>
+      <a href="../index.html#workshop">Workshop</a>
+      <a href="../index.html#looking-for">What I'm looking for</a>
+      <a href="../index.html#contact">Contact</a>
+    </nav>
+    <a class="lang" href="../../experiences/benchmark-llm.html" hreflang="fr" lang="fr" title="Version française">FR</a>
+  </div>
+</header>
+
+<main id="content">
+  <section class="case-hero">
+    <div class="wrap">
+      <a class="back" href="../index.html#exp-benchmark">← Back to the notebook</a>
+      <p class="label" style="margin-top:28px">Exp. 05 · 2025 · MSc research project supervised by Mohamed Bouadi · with Lynda Hammouche</p>
+      <h1>Three 7-billion-parameter LLMs, three tests</h1>
+      <p class="question">How good are three open-source LLMs, really, at maths, common sense and code?</p>
+      <div class="facts-row">
+        <div><div class="num">128/164</div><div class="cap">coding problems solved by DeepSeek-R1</div></div>
+        <div><div class="num">61.2%</div><div class="cap">on HellaSwag for Mistral, the best at common sense</div></div>
+        <div><div class="num">258/500</div><div class="cap">maths questions where DeepSeek-R1 gives a usable answer</div></div>
+        <div><div class="num">~100×</div><div class="cap">slower: the price of long reasoning</div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <article class="article">
+      <span class="step">01 · The protocol</span>
+      <h2>Measure the same thing for everyone</h2>
+      <p>Three 7-billion-parameter models, served locally with Ollama on Kaggle GPUs: LLaMA 2 (Meta), Mistral (Mistral AI) and DeepSeek-R1 distilled into Qwen, built for reasoning. Every raw answer is saved alongside the extracted answer, and metrics are recomputed from those files: results can be checked without rerunning the models.</p>
+      <table>
+        <thead><tr><th>Test</th><th>Task</th><th>Protocol</th></tr></thead>
+        <tbody>
+          <tr><td>GSM8K</td><td>grade-school maths problems, 500 questions</td><td>8-shot, extraction of the final numeric answer</td></tr>
+          <tr><td>HellaSwag</td><td>choose the most plausible ending among 4, 500 questions</td><td>0-shot, the model returns an index</td></tr>
+          <tr><td>HumanEval</td><td>complete a Python function, 164 problems</td><td>0-shot, code run in an isolated process against the unit tests (pass@1)</td></tr>
+        </tbody>
+      </table>
+
+      <span class="step">02 · Results</span>
+      <h2>No model wins everywhere</h2>
+      <figure class="chart wide">
+<!--CHART:benchmark-->
+<div class="bars">
+<div class="bars-group"><div class="bars-title">HumanEval<small>Python code, 164 problems, pass@1</small></div>
+<div class="bars-row best"><span class="bars-label">DeepSeek-R1 7B</span><span class="bars-track"><i style="width:78.0%" title="DeepSeek-R1 7B : 78.0%"></i></span><span class="bars-val">78.0%</span></div>
+<div class="bars-row"><span class="bars-label">Mistral 7B</span><span class="bars-track"><i style="width:31.7%" title="Mistral 7B : 31.7%"></i></span><span class="bars-val">31.7%</span></div>
+<div class="bars-row"><span class="bars-label">LLaMA 2 7B</span><span class="bars-track"><i style="width:9.1%" title="LLaMA 2 7B : 9.1%"></i></span><span class="bars-val">9.1%</span></div>
+</div>
+<div class="bars-group"><div class="bars-title">HellaSwag<small>commonsense, 500 questions, 0-shot</small></div>
+<div class="bars-row"><span class="bars-label">DeepSeek-R1 7B</span><span class="bars-track"><i style="width:51.8%" title="DeepSeek-R1 7B : 51.8%"></i></span><span class="bars-val">51.8%</span></div>
+<div class="bars-row best"><span class="bars-label">Mistral 7B</span><span class="bars-track"><i style="width:61.2%" title="Mistral 7B : 61.2%"></i></span><span class="bars-val">61.2%</span></div>
+<div class="bars-row"><span class="bars-label">LLaMA 2 7B</span><span class="bars-track"><i style="width:24.1%" title="LLaMA 2 7B : 24.1%"></i></span><span class="bars-val">24.1%</span></div>
+</div>
+<div class="bars-group"><div class="bars-title">GSM8K<small>maths, 500 questions, 8-shot</small></div>
+<div class="bars-row best"><span class="bars-label">DeepSeek-R1 7B</span><span class="bars-track"><i style="width:47.6%" title="DeepSeek-R1 7B : 47.6%"></i></span><span class="bars-val">47.6%</span></div>
+<div class="bars-row"><span class="bars-label">Mistral 7B</span><span class="bars-track"><i style="width:44.0%" title="Mistral 7B : 44.0%"></i></span><span class="bars-val">44.0%</span></div>
+<div class="bars-row"><span class="bars-label">LLaMA 2 7B</span><span class="bars-track"><i style="width:5.0%" title="LLaMA 2 7B : 5.0%"></i></span><span class="bars-val">5.0%</span></div>
+</div>
+</div>
+<!--/CHART:benchmark-->
+        <figcaption class="fig-caption"><b>Fig. 1</b> — Accuracy on each test, axis from 0 to 100%. The best model on each test is highlighted.</figcaption>
+      </figure>
+      <p><strong>DeepSeek-R1</strong> dominates coding with 128 problems solved out of 164. <strong>Mistral</strong> is the strongest at common sense and offers the best trade-off between accuracy and response time. <strong>LLaMA 2</strong> lags far behind on all three tests.</p>
+
+      <span class="step">03 · Behind the score</span>
+      <h2>What a percentage hides</h2>
+      <p>On GSM8K, DeepSeek-R1 scores 47.6%. But its reasoning is so long that it produced a usable answer for only <strong>258 questions out of 500</strong>; of those, <strong>92%</strong> are correct. The score therefore mixes two very different things: the quality of the reasoning, excellent, and the ability to conclude in the expected format, poor. All for an inference time about 100 times longer than the other two models.</p>
+      <p>Coding errors tell the same story. Going through the error message of every failure:</p>
+      <table>
+        <thead><tr><th>Model</th><th style="text-align:right">Failures</th><th>Most frequent error</th></tr></thead>
+        <tbody>
+          <tr><td>DeepSeek-R1</td><td class="n">36</td><td><code>NameError</code> (27), including 22 where the requested function is missing from the returned code</td></tr>
+          <tr><td>Mistral</td><td class="n">112</td><td><code>AssertionError</code> (76): the code runs but gives a wrong result; 17 <code>IndentationError</code></td></tr>
+          <tr><td>LLaMA 2</td><td class="n">149</td><td><code>AssertionError</code> (90), then <code>NameError</code> (33), 20 of them using <code>List</code> without an import</td></tr>
+        </tbody>
+      </table>
+      <aside class="margin"><span class="label">Takeaway</span>DeepSeek-R1 mostly fails on form, Mistral and LLaMA 2 mostly on logic. The same score can hide flaws that are fixed in completely different ways.</aside>
+    </article>
+
+    <nav class="next" aria-label="Navigation between experiments">
+      <a href="imputation-series-temporelles.html">← Exp. 04 · Time series</a>
+      <a href="https://github.com/MerabtiAmar/llm-benchmark" rel="noopener">Code, data and report ↗</a>
+      <a href="diagraphies-enageo.html">Exp. 06 · Well logs →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <span>© 2026 Amar Merabti · text and photos all rights reserved</span>
+    <span><a href="mailto:merabtiamar91@gmail.com">merabtiamar91@gmail.com</a></span>
+  </div>
+</footer>
+</body>
+</html>

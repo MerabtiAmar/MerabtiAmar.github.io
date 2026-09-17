@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Verifying product data without ground truth — Amar Merabti</title>
+  <meta name="description" content="MSc thesis at Nricher: automatically verifying attributes extracted from product pages with textual inference and TabPFN. 68% of values validated at 99% precision.">
+  <meta name="author" content="Amar Merabti">
+  <link rel="canonical" href="https://merabtiamar.github.io/en/experiences/verification-attributs.html">
+  <link rel="alternate" hreflang="fr" href="https://merabtiamar.github.io/experiences/verification-attributs.html">
+  <link rel="alternate" hreflang="en" href="https://merabtiamar.github.io/en/experiences/verification-attributs.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Verifying product data without ground truth">
+  <meta property="og:description" content="Textual inference + TabPFN on 4 real catalogs: 0.925 balanced accuracy, 68% of values automated at 99% precision.">
+  <meta property="og:url" content="https://merabtiamar.github.io/en/experiences/verification-attributs.html">
+  <meta property="og:locale" content="en_GB">
+  <meta property="og:site_name" content="Amar Merabti">
+  <meta property="og:image" content="https://merabtiamar.github.io/assets/img/og-en.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Amar Merabti, data scientist — available from October 2026">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="../../assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../../assets/css/site.css">
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="../index.html">Amar Merabti <span>· notebook</span></a>
+    <nav class="nav" aria-label="Sections">
+      <a href="../index.html#experiments">Experiments</a>
+      <a href="../index.html#path">Path</a>
+      <a href="../index.html#workshop">Workshop</a>
+      <a href="../index.html#looking-for">What I'm looking for</a>
+      <a href="../index.html#contact">Contact</a>
+    </nav>
+    <a class="lang" href="../../experiences/verification-attributs.html" hreflang="fr" lang="fr" title="Version française">FR</a>
+  </div>
+</header>
+
+<main id="content">
+  <section class="case-hero">
+    <div class="wrap">
+      <a class="back" href="../index.html#exp-nricher">← Back to the notebook</a>
+      <p class="label" style="margin-top:28px">Exp. 02 · 2026 · internship at Nricher · MSc thesis supervised by Prof. Salima Benbernou</p>
+      <h1>Verifying product data without ground truth</h1>
+      <p class="question">How do you verify a value extracted from a product page when the client's catalog is unreliable?</p>
+      <div class="facts-row">
+        <div><div class="num">68%</div><div class="cap">of values validated automatically, at 99% precision</div></div>
+        <div><div class="num">0.925</div><div class="cap">balanced accuracy, versus 0.808 for the rule alone</div></div>
+        <div><div class="num">30,919</div><div class="cap">real rows: 4 catalogs, 35 attributes</div></div>
+        <div><div class="num">−8.9</div><div class="cap">points without the 4 inference scores, −1.9 without the 50 embeddings</div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <article class="article">
+      <span class="step">01 · The problem</span>
+      <h2>An extraction that doesn't say when it's wrong</h2>
+      <p>Nricher enriches online retailers' catalogs. From a product's title and description, a pipeline categorizes it, extracts its attributes (color, dimensions, material, weight…) with regular expressions, normalizes the values and produces a structured product sheet. This extraction is deterministic and easy to inspect, but it gives no confidence score.</p>
+      <p>So checking is manual: an account manager reviews a sample of 1,000 products, which takes one to two days. And the difficulty is real. On a sofa bed, the extraction reads "140 × 190": those are the mattress dimensions. It reads a weight of 32 kg: that is the foam density. The client's catalog has its own errors too.</p>
+      <p>The task is not to compare a prediction with the truth, but <strong>to arbitrate between two unreliable sources</strong>.</p>
+      <aside class="margin"><span class="label">Why not an LLM judge?</span>I ruled it out for three reasons: it is not deterministic, it does not provide a threshold you can move, and it costs too much per verified value.</aside>
+
+      <span class="step">02 · The reference</span>
+      <h2>Building a ground truth without annotating anything</h2>
+      <ul>
+        <li>When the catalog and the extraction agree after normalization, I treat the value as correct.</li>
+        <li>That set then contains only agreements. I inject errors into 20% of rows by replacing the value with another real value of the same attribute: an obviously wrong value would teach nothing. The seed is fixed, so everything is reproducible.</li>
+        <li>I add an "information missing" case by removing the information from the text for about 10% of rows of each attribute.</li>
+      </ul>
+      <p>The benchmark covers <strong>4 production catalogs, 35 attributes and 30,919 rows</strong>. A reference point: 73.3% of values are already correct without doing anything. Any method has to beat that.</p>
+
+      <span class="step">03 · The sensor</span>
+      <h2>Textual inference, sentence by sentence</h2>
+      <p>The value to check becomes a hypothesis, for example "the height is 84". The multilingual mDeBERTa-v3 model (the catalogs are in French) tests it against each sentence of the description and returns three probabilities: entailment, contradiction or neutral. Descriptions are split into sentences (21 at the median), because these models degrade on long texts, and I keep the maximum: a single supporting sentence is enough.</p>
+      <p>At the best threshold (0.70 on entailment), this rule reaches <strong>0.808 balanced accuracy and 0.919 precision</strong>.</p>
+      <p>Looking at attributes one by one, I found what makes them hard to verify. It is not the number of possible values, it is <strong>negation</strong>: attributes expressed with a negative sentence ("cover not removable") plateau between 0.437 and 0.854 AUC, while the others reach 0.968 to 0.997.</p>
+
+      <span class="step">04 · The decision</span>
+      <h2>A tabular model you don't train</h2>
+      <p>TabPFN is pretrained on millions of synthetic datasets, then frozen. You don't train it: it receives labeled examples in its context and predicts in a single forward pass. It is light enough for thousands of runs on a laptop without a GPU, about 4 seconds each. Since it cannot read text, it receives the description encoded with BGE-M3 and reduced to 50 components by PCA, with or without the inference scores; one model per attribute.</p>
+      <figure class="chart wide">
+<!--CHART:nricher-->
+<div class="chart-legend">
+<span><i class="key dot-accent"></i>trained model with inference scores</span>
+<span><i class="key dot-hollow"></i>trained model without the scores</span>
+<span><i class="key diamond-ink"></i>rule on the scores, no training</span>
+</div>
+<div class="dots">
+<div class="dots-row dots-axis" aria-hidden="true"><span class="dots-label"></span><span class="dots-track">
+<span class="tick" style="left:0.00%">0.70</span>
+<span class="tick" style="left:20.00%">0.75</span>
+<span class="tick" style="left:40.00%">0.80</span>
+<span class="tick" style="left:60.00%">0.85</span>
+<span class="tick" style="left:80.00%">0.90</span>
+<span class="tick" style="left:100.00%">0.95</span>
+</span><span class="dots-vals"></span></div>
+<div class="dots-row">
+<span class="dots-label">TabPFN<small>embeddings + inference scores · 55 features</small></span><span class="dots-track">
+<span class="grid" style="left:0.00%"></span>
+<span class="grid" style="left:20.00%"></span>
+<span class="grid" style="left:40.00%"></span>
+<span class="grid" style="left:60.00%"></span>
+<span class="grid" style="left:80.00%"></span>
+<span class="grid" style="left:100.00%"></span>
+<i class="m dot-accent" style="left:90.00%" title="TabPFN · trained model with inference scores: 0.925"></i>
+</span>
+<span class="dots-vals">0.925</span>
+</div>
+<div class="dots-row">
+<span class="dots-label">TabPFN<small>inference scores only · 5 features</small></span><span class="dots-track">
+<span class="grid" style="left:0.00%"></span>
+<span class="grid" style="left:20.00%"></span>
+<span class="grid" style="left:40.00%"></span>
+<span class="grid" style="left:60.00%"></span>
+<span class="grid" style="left:80.00%"></span>
+<span class="grid" style="left:100.00%"></span>
+<i class="m dot-accent" style="left:82.40%" title="TabPFN · trained model with inference scores: 0.906"></i>
+</span>
+<span class="dots-vals">0.906</span>
+</div>
+<div class="dots-row">
+<span class="dots-label">TabSTAR<small>raw text + inference scores</small></span><span class="dots-track">
+<span class="grid" style="left:0.00%"></span>
+<span class="grid" style="left:20.00%"></span>
+<span class="grid" style="left:40.00%"></span>
+<span class="grid" style="left:60.00%"></span>
+<span class="grid" style="left:80.00%"></span>
+<span class="grid" style="left:100.00%"></span>
+<i class="m dot-accent" style="left:79.20%" title="TabSTAR · trained model with inference scores: 0.898"></i>
+</span>
+<span class="dots-vals">0.898</span>
+</div>
+<div class="dots-row">
+<span class="dots-label">TabPFN<small>embeddings only</small></span><span class="dots-track">
+<span class="grid" style="left:0.00%"></span>
+<span class="grid" style="left:20.00%"></span>
+<span class="grid" style="left:40.00%"></span>
+<span class="grid" style="left:60.00%"></span>
+<span class="grid" style="left:80.00%"></span>
+<span class="grid" style="left:100.00%"></span>
+<i class="m dot-hollow" style="left:54.40%" title="TabPFN · trained model without the scores: 0.836"></i>
+</span>
+<span class="dots-vals">0.836</span>
+</div>
+<div class="dots-row">
+<span class="dots-label">Inference rule<small>0.70 threshold, no training</small></span><span class="dots-track">
+<span class="grid" style="left:0.00%"></span>
+<span class="grid" style="left:20.00%"></span>
+<span class="grid" style="left:40.00%"></span>
+<span class="grid" style="left:60.00%"></span>
+<span class="grid" style="left:80.00%"></span>
+<span class="grid" style="left:100.00%"></span>
+<i class="m diamond-ink" style="left:43.20%" title="Inference rule · rule on the scores, no training: 0.808"></i>
+</span>
+<span class="dots-vals">0.808</span>
+</div>
+<div class="dots-row">
+<span class="dots-label">TabSTAR<small>raw text only</small></span><span class="dots-track">
+<span class="grid" style="left:0.00%"></span>
+<span class="grid" style="left:20.00%"></span>
+<span class="grid" style="left:40.00%"></span>
+<span class="grid" style="left:60.00%"></span>
+<span class="grid" style="left:80.00%"></span>
+<span class="grid" style="left:100.00%"></span>
+<i class="m dot-hollow" style="left:16.80%" title="TabSTAR · trained model without the scores: 0.742"></i>
+</span>
+<span class="dots-vals">0.742</span>
+</div>
+</div>
+<!--/CHART:nricher-->
+        <figcaption class="fig-caption"><b>Fig. 1</b> — Mean balanced accuracy over the 35 attributes. The three trained models that receive the inference scores come first; TabPFN with only those 5 features stays within 2 points of the best model, which uses 55.</figcaption>
+      </figure>
+      <p>The paired ablation (Wilcoxon test) is clear: removing the 4 inference scores costs <strong>8.9 points</strong>, removing the 50 embedding components costs only <strong>1.9</strong>. Four numbers computed against the value to check are worth more than fifty components computed blindly: what matters is how the text representation is oriented, not how rich it is. The standard deviation across attributes also drops from 0.128 to 0.079: the model is both better and steadier.</p>
+      <p>TabSTAR let me test the opposite: a model pretrained on 350 real datasets, with a trainable text encoder, that reads the raw description. On its own it does worse than the inference rule (0.742). With the scores it gains 15.6 points (0.898) but stays behind TabPFN, while taking about 28 times longer (116 s per run, on GPU).</p>
+      <aside class="margin"><span class="label">Caveat</span>TabSTAR ran on a GPU and TabPFN on a laptop: the timings are not strictly comparable, but the order of magnitude matters for an industrial choice.</aside>
+
+      <span class="step">05 · In production</span>
+      <h2>One setting: the threshold</h2>
+      <p>The architecture I proposed plugs into the existing pipeline without changing it:</p>
+      <ol class="flow wide" aria-label="Proposed verification pipeline">
+        <li>Product title and description<small>existing pipeline: categorization, rule-based extraction, normalization</small></li>
+        <li class="q">Do the client's catalog and the extraction agree?
+          <div class="split">
+            <div><b>Yes</b> → the row joins the training corpus. The system feeds on its own flow, with no annotation.</div>
+            <div><b>No</b> → the row goes to verification.</div>
+          </div>
+        </li>
+        <li class="new">Verification<small>inference scores (mDeBERTa-v3) + encoded description (BGE-M3, PCA) + code of the candidate value → TabPFN → probability that the value is correct</small></li>
+        <li class="q">Is the probability above the threshold?
+          <div class="split">
+            <div><b>Yes</b> → the value goes straight into the product sheet.</div>
+            <div><b>No</b> → review by a data developer.</div>
+          </div>
+        </li>
+      </ol>
+      <p>The threshold moves without retraining anything. Set for 99% precision, it automatically validates <strong>68% of values</strong>: human review now covers only a third of the volume, and that third is selected, not drawn at random.</p>
+
+      <span class="step">06 · Limitations</span>
+      <h2>What this system does not see</h2>
+      <ul>
+        <li><strong>The reference comes from agreement between two sources.</strong> If the catalog and the extraction share a bias, it goes unnoticed. A sample should be annotated independently of the text.</li>
+        <li><strong>The errors are injected, not observed.</strong> Misattributing a value, the most frequent error in production, is not reproduced. The next step is to validate on real errors.</li>
+        <li><strong>Detecting an absence is not verifying.</strong> Without a candidate value there is no hypothesis, hence no score: in the "information missing" case, accuracy plateaus at 0.57. That case deserves a task of its own.</li>
+      </ul>
+      <aside class="margin"><span class="label">Code</span>The code belongs to Nricher and is not published. The figures on this page come from the thesis, with no client data.</aside>
+    </article>
+
+    <nav class="next" aria-label="Navigation between experiments">
+      <a href="kabyllm.html">← Exp. 01 · KabyLLM</a>
+      <a href="football-quadrupede.html">Exp. 03 · Agents without rules →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <span>© 2026 Amar Merabti · text and photos all rights reserved</span>
+    <span><a href="mailto:merabtiamar91@gmail.com">merabtiamar91@gmail.com</a></span>
+  </div>
+</footer>
+</body>
+</html>

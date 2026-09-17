@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agents that learn without rules — Amar Merabti</title>
+  <meta name="description" content="Reinforcement learning: a 2D football engine written from scratch, two players trained by PPO self-play that win 73% of their matches against a scripted player, and a simulated quadruped that learns to walk.">
+  <meta name="author" content="Amar Merabti">
+  <link rel="canonical" href="https://merabtiamar.github.io/en/experiences/football-quadrupede.html">
+  <link rel="alternate" hreflang="fr" href="https://merabtiamar.github.io/experiences/football-quadrupede.html">
+  <link rel="alternate" hreflang="en" href="https://merabtiamar.github.io/en/experiences/football-quadrupede.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Agents that learn without rules">
+  <meta property="og:description" content="PPO self-play in a football engine written from scratch, and a quadruped that learns to walk: what works, what fails, and why.">
+  <meta property="og:url" content="https://merabtiamar.github.io/en/experiences/football-quadrupede.html">
+  <meta property="og:locale" content="en_GB">
+  <meta property="og:site_name" content="Amar Merabti">
+  <meta property="og:image" content="https://merabtiamar.github.io/assets/img/og-en.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Amar Merabti, data scientist — available from October 2026">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="../../assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../../assets/css/site.css">
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="../index.html">Amar Merabti <span>· notebook</span></a>
+    <nav class="nav" aria-label="Sections">
+      <a href="../index.html#experiments">Experiments</a>
+      <a href="../index.html#path">Path</a>
+      <a href="../index.html#workshop">Workshop</a>
+      <a href="../index.html#looking-for">What I'm looking for</a>
+      <a href="../index.html#contact">Contact</a>
+    </nav>
+    <a class="lang" href="../../experiences/football-quadrupede.html" hreflang="fr" lang="fr" title="Version française">FR</a>
+  </div>
+</header>
+
+<main id="content">
+  <section class="case-hero">
+    <div class="wrap">
+      <a class="back" href="../index.html#exp-rl">← Back to the notebook</a>
+      <p class="label" style="margin-top:28px">Exp. 03 · 2026 · personal projects</p>
+      <h1>Agents that learn without rules</h1>
+      <p class="question">What can agents learn when you give them no rules at all?</p>
+      <div class="facts-row">
+        <div><div class="num">73%</div><div class="cap">wins against a scripted player, over 500 matches</div></div>
+        <div><div class="num">36M</div><div class="cap">game steps in 48 minutes, on a laptop without a GPU</div></div>
+        <div><div class="num">4%</div><div class="cap">of matches where a player dribbles the ball out alone, down from half</div></div>
+        <div><div class="num">20/20</div><div class="cap">targets reached by the quadruped on flat ground</div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <article class="article">
+      <span class="step">01 · The game</span>
+      <h2>One pitch, two players, no rules given</h2>
+      <p>For two agents to learn against each other, I needed a game that is fast to simulate. I wrote the engine myself, in NumPy, vectorized: 128 matches run in parallel, and 500 full matches play out in 0.4 seconds on a laptop. A pitch with FIFA proportions, players with bounded speed and acceleration, a ball slowed by friction, possession, a probabilistic tackle on contact and collisions between players.</p>
+      <p>The rules of the match are deliberately minimal:</p>
+      <ul>
+        <li>both players spawn anywhere on the pitch; each one scores in the opposite goal;</li>
+        <li>a match lasts 20 seconds, after which it is a draw;</li>
+        <li>a ball that leaves the pitch is given back to the opponent;</li>
+        <li>the player carrying the ball runs slower, and a ball kicked faster than 12 m/s cannot be controlled;</li>
+        <li>every tenth of a second, a player picks one of 16 running directions, and possibly a kick among 24 directions.</li>
+      </ul>
+      <figure class="wide">
+        <div class="board">
+          <div class="board-head">
+            <span class="score" id="board-score" aria-live="polite">Player 1 0 – 0 player 2</span>
+            <span class="clock" id="board-clock" title="Time left: 20 seconds without a goal is a draw" aria-hidden="true">20.0 s</span>
+            <span class="flash" id="board-flash" aria-live="polite"></span>
+          </div>
+          <canvas id="board" width="904" height="608" role="img" aria-label="2D football match played live in the page: a single neural network controls both players"></canvas>
+          <div class="board-foot">
+            <span class="legend"><span><i class="k-att"></i>player 1</span><span><i class="k-def"></i>player 2</span><span><i class="k-ball"></i>ball</span></span>
+            <span class="board-controls"><button type="button" id="board-play">Pause</button><button type="button" id="board-next">Next match</button></span>
+          </div>
+        </div>
+        <figcaption class="fig-caption"><b>Fig. 1</b> — These matches are not recordings: the final policy (86,000 parameters, 225 KB) runs in your browser and decides for both players, ten times per second. Each player defends the goal in their own colour: player 1 attacks the right-hand goal, player 2 the left-hand one; 20 seconds without a goal is a draw.</figcaption>
+      </figure>
+      <aside class="margin"><span class="label">Why the 12 m/s rule</span>Without it, both players learned to camp in their own goal: standing on the line, a player catches every shot passing within 1.6 m, and the draw becomes an equilibrium. Checked against a hand-coded goalkeeper: the scripted player beat it only 48.8% of the time, versus 78.6% once the rule was in place.</aside>
+
+      <span class="step">02 · Training</span>
+      <h2>One policy for both sides</h2>
+      <p>Each player sees the pitch in its own frame: player 2 sees it rotated by 180°. The same network therefore plays both sides, and every match provides two streams of experience.</p>
+      <p>The final reward is zero-sum: ±1 for a goal, 0 for a draw. Since scoring is very rare at first, I add a <strong>dense exploration reward</strong> — go to the ball, move it forward, keep it, avoid kicking it out — which decays linearly to <strong>zero at half of training</strong>. The second half optimizes nothing but "score or concede".</p>
+      <p>PPO, 128 matches × 64 steps per iteration, 4 epochs, with an action mask on the ball-related heads. The released agent is trained in two stages: 15 million steps with the dense reward (19 minutes), then 21 million in purely sparse self-play (29 minutes), that is <strong>36 million steps in 48 minutes</strong> on a laptop without a GPU. The snapshot I kept is the one that beats the scripted player best, a choice confirmed on a second set of seeds.</p>
+      <figure class="wide">
+        <img src="../../assets/fig/football-courbes.png" alt="Learning curves of the four variants tested, against the scripted player and against the random player" width="1380" height="504" loading="lazy">
+        <figcaption class="fig-caption"><b>Fig. 2</b> — The four variants of the ablation ladder, 200 matches per point. Only the first one, mirror self-play, was kept; the released agent extends that run by 21 million steps.</figcaption>
+      </figure>
+
+      <span class="step">03 · Results</span>
+      <h2>73% wins against the scripted player</h2>
+      <figure class="chart wide">
+<!--CHART:rl-->
+<div class="chart-legend"><span><i class="key sq-accent"></i>wins</span><span><i class="key sq-rule"></i>draws</span><span><i class="key sq-ink"></i>losses</span></div>
+<div class="stack">
+<div class="stack-row"><span class="stack-label">Final agent<small>vs the scripted player</small></span><span class="stack-track">
+<i class="seg win" style="width:73.0%" title="wins: 73.0%">73.0%</i>
+<i class="seg draw" style="width:7.8%" title="draws: 7.8%"></i>
+<i class="seg loss" style="width:19.2%" title="losses: 19.2%">19.2%</i>
+</span><span class="stack-val">73.0%</span></div>
+<div class="stack-row"><span class="stack-label">Final agent<small>vs the random player</small></span><span class="stack-track">
+<i class="seg win" style="width:81.6%" title="wins: 81.6%">81.6%</i>
+<i class="seg draw" style="width:18.2%" title="draws: 18.2%">18.2%</i>
+<i class="seg loss" style="width:0.2%" title="losses: 0.2%"></i>
+</span><span class="stack-val">81.6%</span></div>
+<div class="stack-row"><span class="stack-label">Final agent<small>vs itself</small></span><span class="stack-track">
+<i class="seg win" style="width:32.4%" title="wins: 32.4%">32.4%</i>
+<i class="seg draw" style="width:35.2%" title="draws: 35.2%">35.2%</i>
+<i class="seg loss" style="width:32.4%" title="losses: 32.4%">32.4%</i>
+</span><span class="stack-val">32.4%</span></div>
+<div class="stack-row ref"><span class="stack-label">Scripted player<small>vs the random player · reference</small></span><span class="stack-track">
+<i class="seg win" style="width:93.6%" title="wins: 93.6%">93.6%</i>
+<i class="seg draw" style="width:5.8%" title="draws: 5.8%"></i>
+<i class="seg loss" style="width:0.6%" title="losses: 0.6%"></i>
+</span><span class="stack-val">93.6%</span></div>
+<div class="stack-row ref"><span class="stack-label">Scripted player<small>vs itself · reference</small></span><span class="stack-track">
+<i class="seg win" style="width:40.4%" title="wins: 40.4%">40.4%</i>
+<i class="seg draw" style="width:19.2%" title="draws: 19.2%">19.2%</i>
+<i class="seg loss" style="width:40.4%" title="losses: 40.4%">40.4%</i>
+</span><span class="stack-val">40.4%</span></div>
+<div class="stack-row ref"><span class="stack-label">Random player<small>vs itself · reference</small></span><span class="stack-track">
+<i class="seg win" style="width:0.2%" title="wins: 0.2%"></i>
+<i class="seg draw" style="width:98.8%" title="draws: 98.8%">98.8%</i>
+<i class="seg loss" style="width:1.0%" title="losses: 1.0%"></i>
+</span><span class="stack-val">0.2%</span></div>
+</div>
+<!--/CHART:rl-->
+        <figcaption class="fig-caption"><b>Fig. 3</b> — Each row comes from 500 matches: 250 starting positions, each played twice with sides swapped to cancel any starting advantage. Wilson 95% interval for the top row: 68.9 to 76.7%.</figcaption>
+      </figure>
+      <p>The agent clearly beats the scripted player and almost never loses to a random one. Against itself it sits at an exact balance (32.4% / 35.2% / 32.4%), which is the sign of healthy self-play.</p>
+      <p>To check that there is no cycle and no collapse, I had eight successive versions of the training play each other, 200 matches per pair: <strong>no older version beats a newer one</strong>.</p>
+      <figure class="wide">
+        <img src="../../assets/fig/football-matrice.png" alt="Matrix of matchups between the eight successive versions: every score above the diagonal is below 0.5" width="648" height="576" loading="lazy" style="max-width:520px">
+        <figcaption class="fig-caption"><b>Fig. 4</b> — Score of the row against the column, from 2 to 36 million steps. The bluer the cell, the more the row's version dominates.</figcaption>
+      </figure>
+      <table>
+        <thead><tr><th>What the agents do, over 60 measured matches</th><th style="text-align:right">Value</th></tr></thead>
+        <tbody>
+          <tr><td>Decisive matches (a goal is scored)</td><td class="n">70%</td></tr>
+          <tr><td>Matches with at least one kick</td><td class="n">100%</td></tr>
+          <tr><td>Matches with at least one shot on target</td><td class="n">75%</td></tr>
+          <tr><td>Ball taken out alone, while carrying and without kicking</td><td class="n">4%</td></tr>
+          <tr><td>Direction changes over 45°</td><td class="n">0.24 / s</td></tr>
+          <tr><td>Average match length</td><td class="n">11.6 s</td></tr>
+        </tbody>
+      </table>
+
+      <span class="step">04 · What did not work</span>
+      <h2>Half of the work</h2>
+      <p>This list stays visible: ruling ideas out with numbers is part of the job.</p>
+      <ul>
+        <li><strong>Potential-based shaping.</strong> It is the form that provably does not change the optimal policy (Ng et al., 1999), but since a match always ends, the shaping sum is the same constant whatever the behaviour. The critic learns exactly that constant and the term vanishes from the advantage: <strong>1% wins</strong> against the random player after 2.5 million steps, versus 20% with the annealed dense reward.</li>
+        <li><strong>A pool of past opponents</strong>, AlphaStar style: at equal budget it clearly loses to mirror self-play (score 0.38) and shakes more.</li>
+        <li><strong>Separate actor and critic networks</strong>: a draw in head-to-head play (0.505) for 60% more compute.</li>
+        <li><strong>CAPS smoothness regularization</strong>: no measurable gain in smoothness, and a real loss of strength (score 0.431).</li>
+        <li><strong>Top/bottom symmetry augmentation</strong>: entropy collapsed and the run was stopped.</li>
+        <li><strong>My first evaluations.</strong> The earlier version of this project pitted an attacker against a defender, and I measured everything on 12 matches from a fixed kick-off. Replayed over 500 matches with random starts, those evaluations were in fact measuring a single repeated match: the 0 / 100% oscillations I read as instability were mostly a measurement artefact.</li>
+      </ul>
+      <aside class="margin"><span class="label">Still missing</span>The agents dribble very little: 0.02 opponents beaten while carrying the ball per match. The style that emerges is "run to the ball and shoot" rather than "carry and dribble". Since the carrier is slowed and a kicked ball travels faster, shooting stays the profitable choice.</aside>
+
+      <span class="step">05 · The quadruped</span>
+      <h2>Walk first, avoid obstacles later</h2>
+      <p>Second playground: a four-legged creature, simulated in 2D with pymunk, that must reach a flag. Each leg has a motorized hip and knee, 8 motors in total. The agent receives 28 observations (torso orientation, velocities and height, angle and velocity of each joint, distance to the target, 5 distance sensors) and a reward combining progress toward the target, a survival bonus and penalties for tilt, energy and collisions; +200 on arrival, −10 for a fall. Training uses Stable-Baselines3 PPO with parallel environments.</p>
+      <div class="media-pair wide">
+        <figure><img src="../../assets/fig/quadrupede-plat.gif" alt="The quadruped walks on flat ground to the flag" loading="lazy"><figcaption class="fig-caption">Flat ground</figcaption></figure>
+        <figure><img src="../../assets/fig/quadrupede-terrain.gif" alt="The quadruped walks on uneven terrain" loading="lazy"><figcaption class="fig-caption">Uneven terrain</figcaption></figure>
+      </div>
+      <table>
+        <thead><tr><th>Task</th><th style="text-align:right">Target reached</th><th style="text-align:right">Falls</th><th style="text-align:right">Mean time</th></tr></thead>
+        <tbody>
+          <tr><td>Flat ground</td><td class="n">20 / 20</td><td class="n">0</td><td class="n">5.3 s</td></tr>
+          <tr><td>Uneven terrain</td><td class="n">16 / 20</td><td class="n">4</td><td class="n">6.7 s</td></tr>
+          <tr><td>Obstacles, hardest setting</td><td class="n">0 / 20</td><td class="n">13</td><td class="n">—</td></tr>
+        </tbody>
+      </table>
+      <p>Deterministic evaluation over 20 episodes. Walking is learned and holds up on uneven ground; obstacle avoidance is not solved yet, and it is the next step.</p>
+    </article>
+
+    <nav class="next" aria-label="Navigation between experiments">
+      <a href="verification-attributs.html">← Exp. 02 · Product data</a>
+      <a href="https://github.com/MerabtiAmar/rl-football-selfplay" rel="noopener">Football code ↗</a>
+      <a href="https://github.com/MerabtiAmar/rl-quadruped-walker" rel="noopener">Quadruped code ↗</a>
+      <a href="imputation-series-temporelles.html">Exp. 04 · Time series →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <span>© 2026 Amar Merabti · text and photos all rights reserved</span>
+    <span><a href="mailto:merabtiamar91@gmail.com">merabtiamar91@gmail.com</a></span>
+  </div>
+</footer>
+<script src="../../assets/data/politique.js"></script>
+<script src="../../assets/js/football.js"></script>
+<script src="../../assets/js/site.js"></script>
+</body>
+</html>

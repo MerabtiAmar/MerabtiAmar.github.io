@@ -1,0 +1,549 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Amar Merabti — Data scientist, AI and NLP</title>
+  <meta name="description" content="Amar Merabti, data scientist (MSc DCI, Université Paris Cité, ranked 1st in my class). Language models, NLP, time series, reinforcement learning. Available from October 2026 for a CIFRE PhD or a permanent data scientist role.">
+  <meta name="author" content="Amar Merabti">
+  <link rel="canonical" href="https://merabtiamar.github.io/en/">
+  <link rel="alternate" hreflang="fr" href="https://merabtiamar.github.io/">
+  <link rel="alternate" hreflang="en" href="https://merabtiamar.github.io/en/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Amar Merabti — Data scientist, AI and NLP">
+  <meta property="og:description" content="A lab notebook: product attribute verification with textual inference, well measurements reconstructed with LSTMs, a Kabyle language model trained from scratch. Available from October 2026.">
+  <meta property="og:site_name" content="Amar Merabti">
+  <meta property="og:image" content="https://merabtiamar.github.io/assets/img/og-en.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Amar Merabti, data scientist — available from October 2026">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta property="og:url" content="https://merabtiamar.github.io/en/">
+  <meta property="og:locale" content="en_GB">
+  <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/css/site.css">
+  <script type="application/ld+json">
+  {"@context": "https://schema.org", "@type": "Person", "name": "Amar Merabti", "jobTitle": "Data scientist",
+   "email": "mailto:merabtiamar91@gmail.com", "url": "https://merabtiamar.github.io/en/",
+   "alumniOf": ["Université Paris Cité", "USTHB"],
+   "sameAs": ["https://github.com/MerabtiAmar", "https://www.linkedin.com/in/amar-merabti-48938a338"],
+   "knowsLanguage": ["fr", "en", "ar", "kab"]}
+  </script>
+</head>
+<body data-mode="full">
+<a class="skip" href="#content">Skip to content</a>
+
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="#">Amar Merabti <span>· notebook</span></a>
+    <nav class="nav full" aria-label="Sections">
+      <a href="#experiments">Experiments</a>
+      <a href="#path">Path</a>
+      <a href="#workshop">Workshop</a>
+      <a href="#looking-for">What I'm looking for</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <div class="modes" role="group" aria-label="Reading mode">
+      <button type="button" data-set-mode="quick" aria-pressed="false">30 s</button>
+      <button type="button" data-set-mode="full" aria-pressed="true">Notebook</button>
+    </div>
+    <a class="lang" href="../index.html" hreflang="fr" lang="fr" title="Version française">FR</a>
+  </div>
+</header>
+
+<main id="content">
+
+<!-- ============ 30-second mode ============ -->
+<section class="quick" id="thirty-seconds" aria-labelledby="q-title">
+  <div class="wrap">
+    <div class="quick-card">
+      <img src="../assets/img/portrait.jpg" alt="Portrait of Amar Merabti" width="180" height="180">
+      <div>
+        <p class="label">The short version</p>
+        <h2 id="q-title">Amar Merabti, data scientist</h2>
+        <div class="status" style="margin-bottom:0"><span class="dot" aria-hidden="true"></span><span><b>Available from October 2026</b> — CIFRE PhD or permanent data scientist role · anywhere in France, ideally Paris region</span></div>
+        <dl>
+          <dt>Education</dt>
+          <dd>MSc in Data, Knowledge and Intelligence, Université Paris Cité — <strong>ranked 1st in my class (16/20)</strong>. BSc in Computer Science and first year of an MSc in Intelligent Computer Systems at USTHB, Algiers.</dd>
+          <dt>Experience</dt>
+          <dd><strong>Nricher</strong> (2026, 6 months): verifying product attributes with textual inference and TabPFN, 0.925 balanced accuracy. <strong>ENAGEO</strong>, Sonatrach group (2023–2024): internship then a one-year fixed-term contract on well logs treated as time series (LSTM): imputation (MAE 12.7) and cross-well prediction, correlation raised from 0.52 to 0.82.</dd>
+          <dt>Projects</dt>
+          <dd>A 36.3M-parameter language model trained from scratch for Kabyle; a benchmark of open-source LLMs; agents that learn football through self-play.</dd>
+          <dt>Tools</dt>
+          <dd>Python, PyTorch, Transformers, scikit-learn · Kafka, Spark, MongoDB, SQL · Java, C/C++</dd>
+          <dt>Languages</dt>
+          <dd>French and English (fluent), Arabic (proficient), Kabyle (native)</dd>
+        </dl>
+        <div class="actions">
+          <details class="menu">
+            <summary class="btn primary">Download CV</summary>
+            <div class="menu-list">
+              <a href="../cv/Amar-Merabti-CV-PhD-EN.pdf">PhD <span>EN · PDF</span></a>
+              <a href="../cv/Amar-Merabti-CV-data-scientist-EN.pdf">Data scientist <span>EN · PDF</span></a>
+              <a href="../cv/Amar-Merabti-CV-these-CIFRE-FR.pdf">CIFRE PhD <span>FR · PDF</span></a>
+              <a href="../cv/Amar-Merabti-CV-data-scientist-FR.pdf">Data scientist <span>FR · PDF</span></a>
+            </div>
+          </details>
+          <a class="btn" href="mailto:merabtiamar91@gmail.com">Email me</a>
+          <a class="btn" href="https://www.linkedin.com/in/amar-merabti-48938a338" rel="noopener">LinkedIn ↗</a>
+          <button type="button" class="btn" data-set-mode="full">Read the full notebook →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Full notebook ============ -->
+<div class="full">
+
+<section class="hero" aria-labelledby="h-title">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="entry-line label"><span>Lab notebook</span><span>Updated 17 September 2026</span></div>
+      <div class="idcard">
+        <img src="../assets/img/portrait.jpg" alt="" width="76" height="76">
+        <div>
+          <h1 id="h-title">Amar Merabti</h1>
+        </div>
+      </div>
+      <p class="role">Data scientist — language models, NLP, imperfect data</p>
+
+      <div class="status"><span class="dot" aria-hidden="true"></span><span><b>Available from October 2026</b> for a <b>CIFRE PhD</b> (an industrial PhD in France) or a <b>permanent data scientist role</b> · anywhere in France, ideally Paris region</span></div>
+
+      <p class="lead">In industry, I have worked on data nobody had prepared for me. At Nricher, I designed an automatic check for product attributes that validates <em>68% of values at 99% precision</em>. At ENAGEO, part of the Sonatrach group, I reconstructed missing well measurements with LSTMs, from one well to the next. And to understand language models from the inside, I trained one from scratch for Kabyle, my native language.</p>
+
+      <div class="proofs">
+        <div><div class="num">16/20</div><div class="cap">ranked 1st in my class, MSc DCI, Université Paris Cité</div></div>
+        <div><div class="num">36.3M</div><div class="cap">parameters in my Kabyle model, trained from scratch</div></div>
+        <div><div class="num">22</div><div class="cap">open-source repositories, from a compiler to an LLM</div></div>
+      </div>
+
+      <div class="actions">
+        <details class="menu">
+          <summary class="btn primary">Download CV</summary>
+          <div class="menu-list">
+            <a href="../cv/Amar-Merabti-CV-PhD-EN.pdf">PhD <span>EN · PDF</span></a>
+            <a href="../cv/Amar-Merabti-CV-data-scientist-EN.pdf">Data scientist <span>EN · PDF</span></a>
+            <a href="../cv/Amar-Merabti-CV-these-CIFRE-FR.pdf">CIFRE PhD <span>FR · PDF</span></a>
+            <a href="../cv/Amar-Merabti-CV-data-scientist-FR.pdf">Data scientist <span>FR · PDF</span></a>
+          </div>
+        </details>
+        <a class="btn" href="mailto:merabtiamar91@gmail.com">Email me</a>
+        <a class="textlink" href="https://github.com/MerabtiAmar" rel="noopener">GitHub ↗</a>
+        <a class="textlink" href="https://www.linkedin.com/in/amar-merabti-48938a338" rel="noopener">LinkedIn ↗</a>
+      </div>
+    </div>
+
+    <figure>
+      <div class="board">
+        <div class="board-head">
+          <span class="score" id="board-score" aria-live="polite">Player 1 0 – 0 player 2</span>
+          <span class="clock" id="board-clock" title="Time left: 20 seconds without a goal is a draw" aria-hidden="true">20.0 s</span>
+          <span class="flash" id="board-flash" aria-live="polite"></span>
+        </div>
+        <canvas id="board" width="904" height="608" role="img" aria-label="2D football match played live in the page: a single neural network controls both players"></canvas>
+        <div class="board-foot">
+          <span class="legend"><span><i class="k-att"></i>player 1</span><span><i class="k-def"></i>player 2</span><span><i class="k-ball"></i>ball</span></span>
+          <span class="board-controls"><button type="button" id="board-play">Pause</button><button type="button" id="board-next">Next match</button></span>
+        </div>
+      </div>
+      <figcaption class="fig-caption"><b>Fig. 1</b> — No game rules are coded: both players are a single PPO policy trained against itself, 36 million steps in 48 minutes on a laptop. Nothing is pre-recorded: the network plays right here, in your browser, ten decisions per second per player. <a href="experiences/football-quadrupede.html">See the experiment</a></figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ============ Experiments ============ -->
+<section class="section" id="experiments" aria-labelledby="e-title">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="label">§ 1</span>
+      <div>
+        <h2 id="e-title">Six experiments</h2>
+        <p>Each project starts from a question. I write down what I did, what I measured, and what did not work: that is often where I learned the most.</p>
+      </div>
+    </div>
+
+    <ol class="exps">
+      <li class="exp" id="exp-kabyllm">
+        <div class="exp-margin">
+          <div class="kicker">Exp. 01</div>
+          <div class="meta">2026<br>personal project</div>
+        </div>
+        <div class="exp-body">
+          <h3>Can you train a language model for a language with almost no data?</h3>
+          <p>All available written Kabyle amounts to about 40 million tokens, partly locked in PDFs typeset with pre-Unicode fonts. I wrote the decoder for those fonts, built a 120-million-character corpus, then pretrained a Llama-style Transformer before fine-tuning it on chat messages.</p>
+          <p class="note"><span class="label">What did not work</span>My first model (43M parameters for 1M tokens) memorized its corpus: training loss 1.33, validation loss 6.21. It was about 800 times too large for its data.</p>
+          <div class="exp-links"><a href="experiences/kabyllm.html">Read the experiment →</a><a href="https://github.com/MerabtiAmar/kabyllm" rel="noopener">Code ↗</a></div>
+        </div>
+        <div class="exp-aside">
+          <div class="keynum">1.977</div>
+          <div class="keycap">bits per character on validation after pretraining and fine-tuning, versus 2.046 without pretraining</div>
+          <img src="../assets/fig/kabyllm-courbes.png" alt="Loss curves for pretraining and fine-tuning" loading="lazy" width="1400" height="440">
+        </div>
+      </li>
+
+      <li class="exp" id="exp-nricher">
+        <div class="exp-margin">
+          <div class="kicker">Exp. 02</div>
+          <div class="meta">2026<br>Nricher internship<br>MSc thesis, Prof. Salima Benbernou</div>
+        </div>
+        <div class="exp-body">
+          <h3>How do you verify a value extracted from a product page when the client's catalog is unreliable?</h3>
+          <p>Each attribute/value pair becomes a hypothesis, checked sentence by sentence against the product description with textual inference (mDeBERTa-v3). These scores, together with BGE-M3 embeddings, feed TabPFN. The benchmark covers 4 production catalogs: 35 attributes, 30,919 rows and 5,635 paired runs, with a reference built without manual annotation.</p>
+          <p class="note"><span class="label">What the ablation showed</span>Removing the 4 inference scores costs 8.9 points; removing the 50 embedding components costs only 1.9 (Wilcoxon test). What matters is how the text representation is oriented, not how rich it is.</p>
+          <div class="exp-links"><a href="experiences/verification-attributs.html">Read the experiment →</a><span class="label" style="align-self:center">code owned by Nricher, not published</span></div>
+        </div>
+        <div class="exp-aside">
+          <div class="keynum">68%</div>
+          <div class="keycap">of values validated automatically, at 99% precision</div>
+          <div class="keynum small">0.925</div>
+          <div class="keycap">balanced accuracy, versus 0.808 for the inference rule alone and 0.898 for TabSTAR, 28 times more expensive</div>
+        </div>
+      </li>
+
+      <li class="exp" id="exp-rl">
+        <div class="exp-margin">
+          <div class="kicker">Exp. 03</div>
+          <div class="meta">2026<br>personal projects</div>
+        </div>
+        <div class="exp-body">
+          <h3>What can agents learn when you give them no rules at all?</h3>
+          <p>I wrote a 2D football engine in NumPy (FIFA proportions, possession, tackles, collisions) and trained a single PPO policy that plays both sides: two players spawn anywhere on the pitch and try to score, with no game rule coded inside the agent. 36 million steps in 48 minutes, on a laptop without a GPU. In parallel, a quadruped simulated with pymunk learns to walk to a flag with Stable-Baselines3.</p>
+          <p class="note"><span class="label">What did not work</span>Potential-based shaping, the safest form in theory, gives no signal when every match ends: 1% wins. An AlphaStar-style opponent pool loses to mirror self-play. And my first evaluations, on 12 matches from a fixed kick-off, were in fact measuring a single repeated match. The quadruped, for its part, never reaches its target among obstacles (0/20).</p>
+          <div class="exp-links"><a href="experiences/football-quadrupede.html">Read the experiment →</a><a href="https://github.com/MerabtiAmar/rl-football-selfplay" rel="noopener">Football ↗</a><a href="https://github.com/MerabtiAmar/rl-quadruped-walker" rel="noopener">Quadruped ↗</a></div>
+        </div>
+        <div class="exp-aside">
+          <div class="keynum">73%</div>
+          <div class="keycap">wins against a scripted player, over 500 matches, against 19% losses</div>
+          <img src="../assets/fig/quadrupede-plat.gif" alt="The simulated quadruped walks on flat ground to the flag" loading="lazy">
+          <div class="keycap">Quadruped: 20/20 targets reached on flat ground, 16/20 on uneven terrain</div>
+        </div>
+      </li>
+
+      <li class="exp" id="exp-imputation">
+        <div class="exp-margin">
+          <div class="kicker">Exp. 04</div>
+          <div class="meta">2025<br>MSc year 1, DCI<br>supervised by Prof. Themis Palpanas</div>
+        </div>
+        <div class="exp-body">
+          <h3>To fill gaps in a time series, does deep learning beat a classical method?</h3>
+          <p>Electricity meters from 3,127 households, 12,864 readings each, 30 to 50% of values masked. We compared a nearest neighbor, an LSTM autoencoder, a partial-convolution U-Net, a self-supervised Transformer and an STL decomposition rewritten in PyTorch to run on GPU.</p>
+          <p class="note"><span class="label">Answer</span>Not here. STL wins in both scenarios, including on 1,098 unseen households: trend and seasonality are exactly the structure of this data, and the deep models had to be scaled down to fit on 4 GPUs.</p>
+          <div class="exp-links"><a href="experiences/imputation-series-temporelles.html">Read the experiment →</a><a href="https://github.com/MerabtiAmar/time-series-imputation" rel="noopener">Code and report ↗</a></div>
+        </div>
+        <div class="exp-aside">
+          <div class="keynum">0.262</div>
+          <div class="keycap">MAE for GPU STL, versus 0.327 for the best deep model (U-Net)</div>
+          <img src="../assets/fig/imputation-figure.png" alt="Error comparison of the imputation methods" loading="lazy">
+        </div>
+      </li>
+
+      <li class="exp" id="exp-benchmark">
+        <div class="exp-margin">
+          <div class="kicker">Exp. 05</div>
+          <div class="meta">2025<br>MSc research project<br>with Lynda Hammouche</div>
+        </div>
+        <div class="exp-body">
+          <h3>How good are three 7-billion-parameter open-source LLMs at maths, common sense and code?</h3>
+          <p>LLaMA 2, Mistral and distilled DeepSeek-R1, served with Ollama on 4 L4 GPUs: GSM8K 8-shot, HellaSwag and HumanEval 0-shot, with generated code executed in a sandbox and Python error types analyzed.</p>
+          <p class="note"><span class="label">Nuance</span>DeepSeek-R1 dominates coding, but its long reasoning makes it about 100 times slower, and it gave a usable answer to only 258 maths questions out of 500. Mistral offers the best trade-off between accuracy and latency.</p>
+          <div class="exp-links"><a href="experiences/benchmark-llm.html">Read the experiment →</a><a href="https://github.com/MerabtiAmar/llm-benchmark" rel="noopener">Code and report ↗</a></div>
+        </div>
+        <div class="exp-aside">
+          <div class="keynum">128/164</div>
+          <div class="keycap">HumanEval problems solved by DeepSeek-R1 (78.0%), versus 52 for Mistral and 15 for LLaMA 2</div>
+          <img src="../assets/fig/benchmark-humaneval.png" alt="HumanEval pass rate of the three models" loading="lazy">
+        </div>
+      </li>
+
+      <li class="exp" id="exp-enageo">
+        <div class="exp-margin">
+          <div class="kicker">Exp. 06</div>
+          <div class="meta">2023–2024<br>ENAGEO, Sonatrach group<br>internship, then fixed-term contract</div>
+        </div>
+        <div class="exp-body">
+          <h3>Can you reconstruct a well measurement where it is missing, and predict it in another well?</h3>
+          <p>Along a borehole, rock properties such as elasticity or density are measured at regular depth intervals. These series have gaps (faulty equipment, lost data) and the measurements are expensive. As an intern, I tested classical models from one well to another and delivered a Java Swing application to geophysicists. On the fixed-term contract, I treated these series as time series, with LSTMs and RNNs: first to fill the gaps within a well, then to predict the same property in another well.</p>
+          <p class="note"><span class="label">What did not work</span>During the internship, linear regression (r = 0.15) and SVM (0.29) did not generalize from one well to another. And even at 0.82 with LSTMs, the predictions were not yet good enough for the company to use: I left the project in development when I moved to France.</p>
+          <div class="exp-links"><a href="experiences/diagraphies-enageo.html">Read the experiment →</a><a href="https://github.com/MerabtiAmar/well-log-imputation" rel="noopener">Internship application (synthetic data) ↗</a></div>
+        </div>
+        <div class="exp-aside">
+          <div class="keynum">0.52 → 0.82</div>
+          <div class="keycap">cross-well correlation, from internship (MLP) to contract (LSTM), with MAE down from 21.4 to 15.8</div>
+          <div class="keynum small">12.7</div>
+          <div class="keycap">MAE when filling the gaps of a series within the same well (RMSE 15.2)</div>
+        </div>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<figure class="plate">
+  <img src="../assets/img/photos/montagne-2021-12-2000.jpg" srcset="../assets/img/photos/montagne-2021-12-1000.jpg 1000w, ../assets/img/photos/montagne-2021-12-2000.jpg 2000w" sizes="100vw" alt="Snow-covered peak under a blue sky, above a small town" loading="lazy">
+  <figcaption class="fig-caption">Photo: Amar Merabti — December 2021</figcaption>
+</figure>
+
+<!-- ============ Path ============ -->
+<section class="section" id="path" aria-labelledby="p-title">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="label">§ 2</span>
+      <div>
+        <h2 id="p-title">My path, drawn as a well log</h2>
+        <p>My first models predicted well logs. Here is my path drawn the same way: depth is time, and the columns show what I learned and where.</p>
+      </div>
+    </div>
+
+    <div class="log-wrap">
+      <div class="log-head"><span>Well MERABTI-1 · Algiers → Paris · 2020–2026</span><span>Hover or use ↑ ↓ to read a year</span></div>
+      <div class="log-cols" id="log-cols" aria-hidden="true"></div>
+      <svg id="log" tabindex="0" role="img" aria-label="Path from 2020 to 2026: education, industry experience, skills over time and milestones. A text version follows."></svg>
+      <div class="log-tip" id="log-tip" hidden></div>
+      <p class="log-note">Curves: how intensively I used each field, my own estimate. Patterns: education; orange bands: companies.</p>
+    </div>
+
+    <details class="plain">
+      <summary>Text version of the path</summary>
+      <ol class="timeline">
+        <li><span class="when">2020</span><span>Baccalaureate in experimental sciences, with honors (Algeria).</span></li>
+        <li><span class="when">2020 – 2023</span><span>BSc in Computer Science, USTHB (Algiers). First games in C with SDL, a library management system in C (year 2), the Aqessar Android chat app, a Flex/Bison compiler, information extraction with Unitex.</span></li>
+        <li><span class="when">Feb – Jun 2023</span><span>Machine learning internship at ENAGEO (Sonatrach group): bachelor's thesis on predicting geomechanical parameters.</span></li>
+        <li><span class="when">2023 – 2024</span><span>First year of an MSc in Intelligent Computer Systems, USTHB, alongside a part-time AI developer contract at ENAGEO: well logs treated as time series with LSTMs, imputation and cross-well prediction (correlation raised to 0.82).</span></li>
+        <li><span class="when">2024 – 2025</span><span>MSc year 1 in Data, Knowledge and Intelligence, Université Paris Cité: LLM benchmark, time series imputation, argumentation solver.</span></li>
+        <li><span class="when">2025 – 2026</span><span>MSc year 2 (DCI), ranked 1st in my class (16/20): data quality, streaming, temporal extraction. Data scientist internship at Nricher (Feb – Aug 2026), KabyLLM and RL agents.</span></li>
+        <li><span class="when">Oct 2026</span><span>Next step: a CIFRE PhD or a permanent data scientist role.</span></li>
+      </ol>
+    </details>
+  </div>
+</section>
+
+<!-- ============ Workshop ============ -->
+<section class="section" id="workshop" aria-labelledby="a-title">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="label">§ 3</span>
+      <div>
+        <h2 id="a-title">The workshop</h2>
+        <p>The other projects, from my first games in C to data pipelines. All of them are on GitHub, with a README (in French).</p>
+      </div>
+    </div>
+
+    <div class="filters" role="group" aria-label="Filter projects">
+      <button type="button" data-filter="tout" aria-pressed="true">All</button>
+      <button type="button" data-filter="nlp" aria-pressed="false">NLP</button>
+      <button type="button" data-filter="data" aria-pressed="false">Data</button>
+      <button type="button" data-filter="ml" aria-pressed="false">Machine learning</button>
+      <button type="button" data-filter="algo" aria-pressed="false">Algorithms</button>
+      <button type="button" data-filter="dev" aria-pressed="false">Web and mobile</button>
+      <button type="button" data-filter="jeux" aria-pressed="false">Games and graphics</button>
+      <span class="label" id="shelf-count" aria-live="polite" style="align-self:center;margin-left:6px">16 projects</span>
+    </div>
+
+    <ul class="shelf">
+      <li data-tags="dev">
+        <span class="yr">2026</span>
+        <div><h3>Siwel</h3><p>Group audio and video calls between phones, including behind restrictive mobile networks, thanks to a self-hosted TURN server.</p></div>
+        <span class="stack">Kotlin · WebRTC · Firebase · Node.js</span>
+        <a class="go" href="https://github.com/MerabtiAmar/siwel" rel="noopener">Code ↗</a>
+      </li>
+      <li data-tags="ml">
+        <span class="yr">2026</span>
+        <div><h3>Fishing activity forecasting</h3><p>shipd.ai challenge: predicting a vessel's fishing hours 1, 2 and 3 days ahead, on 480,192 rows.</p></div>
+        <span class="stack">LightGBM · XGBoost · CatBoost · PyTorch</span>
+        <a class="go" href="https://github.com/MerabtiAmar/fishing-activity-forecasting" rel="noopener">Code ↗</a>
+      </li>
+      <li data-tags="data">
+        <span class="yr">2025–2026</span>
+        <div><h3>Real-time e-commerce recommendations</h3><p>Events replayed through Kafka, recommendations recomputed after each action, and their relevance measured live.</p></div>
+        <span class="stack">Kafka · PySpark · MongoDB · Streamlit</span>
+        <a class="go" href="https://github.com/MerabtiAmar/realtime-ecommerce-recommender" rel="noopener">Code ↗</a>
+      </li>
+      <li data-tags="data">
+        <span class="yr">2025–2026</span>
+        <div><h3>NYC Taxi data quality</h3><p>Measure, then repair: completeness, accuracy, consistency and uniqueness, weighted by use case; GPS coordinates rebuilt with the haversine formula.</p></div>
+        <span class="stack">pandas · GeoPandas · ydata-profiling</span>
+        <a class="go" href="https://github.com/MerabtiAmar/nyc-taxi-data-quality" rel="noopener">Code ↗</a>
+      </li>
+      <li data-tags="nlp">
+        <span class="yr">2025</span>
+        <div><h3>Temporal expression extraction</h3><p>HeidelTime versus BERT on historical, medical and tweet corpora: BERT reaches 95.5% F1 on tweets (relaxed match), far from its original domain.</p></div>
+        <span class="stack">BERT · HeidelTime · Java</span>
+        <a class="go" href="https://github.com/MerabtiAmar/temporal-expression-extraction" rel="noopener">Code ↗</a>
+      </li>
+      <li data-tags="nlp data">
+        <span class="yr">2024–2025</span>
+        <div><h3>Sentiment on 1.6 million tweets</h3><p>A first version in Keras (LSTM), rebuilt a year later with Spark ML and a MySQL database.</p></div>
+        <span class="stack">Keras · Spark ML · MySQL</span>
+        <a class="go" href="https://github.com/MerabtiAmar/twitter-sentiment-analysis" rel="noopener">Code ↗</a>
+      </li>
+      <li data-tags="ml">
+        <span class="yr">2025</span>
+        <div><h3>Neural network visualizer</h3><p>Build a network with the mouse, set weights and biases, and watch the forward pass neuron by neuron.</p></div>
+        <span class="stack">Python · Tkinter</span>
+        <a class="go" href="https://github.com/MerabtiAmar/neural-network-visualizer" rel="noopener">Code ↗</a>
+      </li>
+      <li data-tags="algo">
+        <span class="yr">2024–2025</span>
+        <div><h3>Abstract argumentation solver</h3><p>Complete and stable extensions of a Dung argumentation framework, with credulous and skeptical acceptance.</p></div>
+        <span class="stack">Python</span>
+        <a class="go" href="https://github.com/MerabtiAmar/argumentation-solver" rel="noopener">Code ↗</a>
+      </li>
+      <li data-tags="dev">
+        <span class="yr">2024–2025</span>
+        <div><h3>WatchBid</h3><p>An auction site for collectible watches: accounts, filterable catalog, listings and bids.</p></div>
+        <span class="stack">Flask · SQLAlchemy · Bootstrap</span>
+        <a class="go" href="https://github.com/MerabtiAmar/watchbid" rel="noopener">Code ↗</a>
+      </li>
+      <li data-tags="algo">
+        <span class="yr">2024</span>
+        <div><h3>Multiple knapsack</h3><p>Depth-first, breadth-first, A*, a genetic algorithm and bee swarm optimization, compared in a Java interface.</p></div>
+        <span class="stack">Java · Swing</span>
+        <a class="go" href="https://github.com/MerabtiAmar/multiple-knapsack-solver" rel="noopener">Code ↗</a>
+      </li>
+      <li data-tags="algo">
+        <span class="yr">2023</span>
+        <div><h3>MiniPy compiler</h3><p>Lexical and syntax analysis of a Python-like language, symbol table and quadruple generation.</p></div>
+        <span class="stack">C · Flex · Bison</span>
+        <a class="go" href="https://github.com/MerabtiAmar/minipy-compiler" rel="noopener">Code ↗</a>
+      </li>
+      <li data-tags="nlp">
+        <span class="yr">2022–2023</span>
+        <div><h3>Drugs and dosages with Unitex</h3><p>A dictionary built from the Vidal drug database, enriched from context, then rule graphs that spot doses, frequencies and durations.</p></div>
+        <span class="stack">Unitex · Python</span>
+        <a class="go" href="https://github.com/MerabtiAmar/medication-extraction-unitex" rel="noopener">Code ↗</a>
+      </li>
+      <li data-tags="dev">
+        <span class="yr">2022</span>
+        <div><h3>Aqessar</h3><p>An Android chat app with an interface in Kabyle: accounts, invitations, real-time conversations.</p></div>
+        <span class="stack">Java · Firebase</span>
+        <a class="go" href="https://github.com/MerabtiAmar/aqessar" rel="noopener">Code ↗</a>
+      </li>
+      <li data-tags="jeux">
+        <span class="yr">2022–2023</span>
+        <div><h3>Processing sketches</h3><p>Snake, minesweeper, pool, the game of life, Langton's ant and fractals.</p></div>
+        <span class="stack">Java · Processing</span>
+        <a class="go" href="https://github.com/MerabtiAmar/processing-java-sketches" rel="noopener">Code ↗</a>
+      </li>
+      <li data-tags="algo">
+        <span class="yr">2021–2022</span>
+        <div><h3>Library management system</h3><p>Books, students, loans and penalties, with premium and standard waiting queues written by hand on linked lists.</p></div>
+        <span class="stack">C · linked lists · queues</span>
+        <a class="go" href="https://github.com/MerabtiAmar/library-management-c" rel="noopener">Code ↗</a>
+      </li>
+      <li data-tags="jeux">
+        <span class="yr">2021</span>
+        <div><h3>SDL mini-games</h3><p>My first graphical programs, self-taught: a shoot 'em up, a snake, pong and mini-golf.</p></div>
+        <span class="stack">C++ · SDL 1.2</span>
+        <a class="go" href="https://github.com/MerabtiAmar/sdl-mini-games" rel="noopener">Code ↗</a>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<figure class="plate">
+  <img src="../assets/img/photos/nuage-2021-02-2000.jpg" srcset="../assets/img/photos/nuage-2021-02-1000.jpg 1000w, ../assets/img/photos/nuage-2021-02-2000.jpg 2000w" sizes="100vw" alt="Large cloud lit by the sunset above a street and a street lamp" loading="lazy">
+  <figcaption class="fig-caption">Photo: Amar Merabti — February 2021</figcaption>
+</figure>
+
+<!-- ============ What I'm looking for ============ -->
+<section class="section" id="looking-for" aria-labelledby="r-title">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="label">§ 4</span>
+      <div>
+        <h2 id="r-title">What I'm looking for</h2>
+        <p>From October 2026, two paths interest me equally.</p>
+      </div>
+    </div>
+
+    <div class="seek">
+      <div>
+        <span class="label">Path 1</span>
+        <h3>A CIFRE PhD</h3>
+        <p>A CIFRE PhD is a three-year doctorate carried out jointly by a company and an academic lab in France. I am looking for a topic where the data itself is the problem: scarce, noisy, incomplete or unreliable. Language models and NLP, tabular, medical or biological data, physics, chemistry: the field matters less to me than the scientific question and its value for the company.</p>
+        <ul>
+          <li>A first taste of research in industry: my MSc thesis at Nricher worked on 4 production catalogs.</li>
+          <li>Rigorous protocols: references without manual annotation, ablations, paired tests, calibration.</li>
+          <li>The habit of implementing things myself, from a Transformer to a simulation engine.</li>
+        </ul>
+      </div>
+      <div>
+        <span class="label">Path 2</span>
+        <h3>A permanent data scientist role</h3>
+        <p>I want to join a team that builds models people actually use, and that measures what they are worth before deploying them.</p>
+        <ul>
+          <li>End-to-end pipelines: ingestion with Kafka and Spark, modeling, evaluation, application.</li>
+          <li>Two industry experiences with measured results: ENAGEO (0.52 → 0.82) and Nricher (68% automated at 99% precision).</li>
+          <li>Hands-on experience with LLMs, from fine-tuning to benchmarking.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="practical">
+      <span>Available: October 2026</span>
+      <span>Location: anywhere in France, ideally Paris region</span>
+      <span>Languages: French, English, Arabic, Kabyle</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ About ============ -->
+<section class="section" id="about" aria-labelledby="ap-title">
+  <div class="wrap">
+    <div class="about">
+      <span class="label">§ 5</span>
+      <div class="about-text">
+        <h2 id="ap-title" class="azul">Azul — hello, in Kabyle.</h2>
+        <p>Kabyle is my native language, and very few digital tools understand it. That is where KabyLLM and Aqessar come from; my very first programs, though, were games in C that I wrote on my own in 2021.</p>
+        <p>I did my bachelor's degree and the first year of a master's at USTHB, in Algiers, while working for ENAGEO. I then joined Université Paris Cité for the DCI master's, which I finished ranked first in my class.</p>
+        <p>Away from models: football, music and photography. The photos on this site are mine.</p>
+      </div>
+      <dl class="facts">
+        <dt>Languages</dt><dd>Kabyle (native)<br>French, English (fluent)<br>Arabic (proficient)</dd>
+        <dt>Everyday tools</dt><dd>Python, PyTorch, Transformers<br>scikit-learn, pandas<br>Kafka, Spark, MongoDB, SQL<br>Java, C/C++, LaTeX</dd>
+        <dt>Online</dt><dd><a href="https://github.com/MerabtiAmar" rel="noopener">github.com/MerabtiAmar</a><br><a href="https://www.linkedin.com/in/amar-merabti-48938a338" rel="noopener">LinkedIn</a></dd>
+      </dl>
+    </div>
+    <div class="gallery">
+      <figure><img src="../assets/img/photos/baie-2023-07-1000.jpg" alt="Blue bay below a cliff, framed by pine branches" loading="lazy"><figcaption class="fig-caption">July 2023</figcaption></figure>
+      <figure><img src="../assets/img/photos/ricochet-2021-08-1000.jpg" alt="Splash of water in the middle of a lake at sunset" loading="lazy"><figcaption class="fig-caption">August 2021</figcaption></figure>
+      <figure><img src="../assets/img/photos/ciel-2021-01-1000.jpg" alt="Red and purple sky above a line of mountains" loading="lazy"><figcaption class="fig-caption">January 2021</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+</div><!-- /.full -->
+
+<!-- ============ Contact (shared by both modes) ============ -->
+<section class="contact" id="contact" aria-labelledby="c-title">
+  <div class="wrap">
+    <span class="label">Contact</span>
+    <h2 id="c-title">A PhD topic, a role, a question about a project?</h2>
+    <a class="mail" href="mailto:merabtiamar91@gmail.com">merabtiamar91@gmail.com</a>
+    <div class="row">
+      <a class="btn primary" href="mailto:merabtiamar91@gmail.com">Email me</a>
+      <a class="btn" href="https://www.linkedin.com/in/amar-merabti-48938a338" rel="noopener">LinkedIn ↗</a>
+      <a class="btn" href="https://github.com/MerabtiAmar" rel="noopener">GitHub ↗</a>
+    </div>
+    <ul class="cv-list">
+      <li><a href="../cv/Amar-Merabti-CV-PhD-EN.pdf">CV for PhD applications</a><span>EN · PDF</span></li>
+      <li><a href="../cv/Amar-Merabti-CV-data-scientist-EN.pdf">CV for data scientist roles</a><span>EN · PDF</span></li>
+      <li><a href="../cv/Amar-Merabti-CV-these-CIFRE-FR.pdf">CV thèse CIFRE</a><span>FR · PDF</span></li>
+      <li><a href="../cv/Amar-Merabti-CV-data-scientist-FR.pdf">CV data scientist</a><span>FR · PDF</span></li>
+    </ul>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <span>© 2026 Amar Merabti · text and photos all rights reserved</span>
+    <span>Static site, no trackers · hosted on GitHub Pages</span>
+  </div>
+</footer>
+
+<script src="../assets/data/politique.js"></script>
+<script src="../assets/js/football.js"></script>
+<script src="../assets/js/site.js"></script>
+</body>
+</html>
