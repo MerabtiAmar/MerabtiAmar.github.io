@@ -574,6 +574,14 @@ details.plain summary { cursor: pointer; font-family: var(--mono); font-size: 14
 .nn-file input { display: none; }
 .nn-file:hover { border-color: var(--ink); color: var(--ink); }
 
+.al-grid { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 18px; align-items: start; }
+.al-grid canvas { width: 160px; height: 160px; border: 1px solid var(--rule-strong); background: var(--paper); }
+.al-keys { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; margin-top: 8px; width: 160px; }
+.al-keys button { font-family: var(--mono); font-size: 13px; padding: 4px 0; background: var(--paper); color: var(--ink); border: 1px solid var(--rule-strong); border-radius: 2px; cursor: pointer; }
+.al-keys button:hover { border-color: var(--ink); }
+#al-chart { width: 100%; height: auto; }
+@media (max-width: 620px) { .al-grid { grid-template-columns: 1fr; } }
+
 @media print {
   .topbar, .modes, .board-controls, .filters { display: none !important; }
   body { background: #fff; }

@@ -159,7 +159,7 @@
     <div class="sec-head">
       <span class="label">§ 1</span>
       <div>
-        <h2 id="e-title">Six experiments</h2>
+        <h2 id="e-title">Seven experiments</h2>
         <p>Each project starts from a question. I write down what I did, what I measured, and what did not work: that is often where I learned the most.</p>
       </div>
     </div>
@@ -273,6 +273,23 @@
           <div class="keycap">cross-well correlation, from internship (MLP) to contract (LSTM), with MAE down from 21.4 to 15.8</div>
           <div class="keynum small">12.7</div>
           <div class="keycap">MAE when filling the gaps of a series within the same well (RMSE 15.2)</div>
+        </div>
+      </li>
+      <li class="exp" id="exp-annotation">
+        <div class="exp-margin">
+          <div class="kicker">Exp. 07</div>
+          <div class="meta">2026<br>personal project</div>
+        </div>
+        <div class="exp-body">
+          <h3>When a human can only annotate two hundred examples, which ones should they get?</h3>
+          <p>Five selection strategies compared at a fixed budget, on two datasets and two classifiers: twenty independent draws per strategy, paired comparisons and a Wilcoxon test. The sandbox on the page puts you in the annotator's seat.</p>
+          <p class="note"><span class="label">Nuance</span>Entropy, the most taught strategy, does worse than random sampling at the start: 0.687 against 0.799 at fifty labels. And on an easy binary problem every strategy converges — active learning only pays off on hard tasks.</p>
+          <div class="exp-links"><a href="experiences/annotation-budgetee.html">Read the experiment →</a><a href="https://github.com/MerabtiAmar/active-learning-budget" rel="noopener">Code and results ↗</a></div>
+        </div>
+        <div class="exp-aside">
+          <div class="keynum">99 %</div>
+          <div class="keycap">of the final accuracy reached with 16% of the labels, against 96% for random sampling of the same size</div>
+          <img src="assets/fig/annotation-courbes.png" alt="Accuracy curves of the five selection strategies" loading="lazy">
         </div>
       </li>
     </ol>

@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>What is one label worth? — Amar Merabti</title>
+  <meta name="description" content="Active learning, measured: five selection strategies compared at fixed budget, on two datasets and two classifiers, with paired tests. Entropy does worse than random at the start.">
+  <meta name="author" content="Amar Merabti">
+  <link rel="canonical" href="https://merabtiamar.github.io/en/experiences/annotation-budgetee.html">
+  <link rel="alternate" hreflang="fr" href="https://merabtiamar.github.io/experiences/annotation-budgetee.html">
+  <link rel="alternate" hreflang="en" href="https://merabtiamar.github.io/en/experiences/annotation-budgetee.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="What is one label worth?">
+  <meta property="og:description" content="99% of the final accuracy with 16% of the labels — and entropy, the most taught strategy, does worse than random sampling at the start.">
+  <meta property="og:url" content="https://merabtiamar.github.io/en/experiences/annotation-budgetee.html">
+  <meta property="og:locale" content="en_GB">
+  <meta property="og:site_name" content="Amar Merabti">
+  <meta property="og:image" content="https://merabtiamar.github.io/assets/img/og-en.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Amar Merabti, data scientist — available from October 2026">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="../../assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../../assets/css/site.css">
+</head>
+<body>
+<a class="skip" href="#contenu">Skip to content</a>
+
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="../../index.html">Amar Merabti <span>· notebook</span></a>
+    <nav class="nav" aria-label="Sections">
+      <a href="../../index.html#experiments">Experiments</a>
+      <a href="../../index.html#path">Path</a>
+      <a href="../../index.html#workshop">Workshop</a>
+      <a href="../../sandbox.html">Sandbox</a>
+      <a href="../../index.html#looking">What I'm looking for</a>
+      <a href="../../index.html#contact">Contact</a>
+    </nav>
+    <a class="lang" href="../../experiences/annotation-budgetee.html" hreflang="fr" lang="fr" title="Version française">FR</a>
+  </div>
+</header>
+
+<main id="contenu">
+  <section class="case-hero">
+    <div class="wrap">
+      <a class="back" href="../../index.html#exp-annotation">← Back to the notebook</a>
+      <p class="label" style="margin-top:28px">Exp. 07 · 2026 · personal project</p>
+      <h1>What is one label worth?</h1>
+      <p class="question">When a human can only annotate two hundred of them, which ones should they get?</p>
+      <div class="facts-row">
+        <div><div class="num">99 %</div><div class="cap">of the final accuracy reached with 16% of the labels</div></div>
+        <div><div class="num">+7,0</div><div class="cap">points gained over random sampling from 20 labels on (p = 0.002)</div></div>
+        <div><div class="num">−11,2</div><div class="cap">points lost by entropy against random at 50 labels (p = 0.0002)</div></div>
+        <div><div class="num">20</div><div class="cap">independent draws per strategy, paired comparisons</div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <article class="article">
+      <span class="step">01 · The protocol</span>
+      <h2>Measuring what an annotation really costs</h2>
+      <p>Labelling is expensive: that was the everyday reality of my internship at Nricher, where an account manager reviews a sample of a thousand products in one to two days. The question here is the same one, isolated and measured: at a fixed annotation budget, which selection strategy makes the model improve fastest?</p><p>The protocol is deliberately strict. We start from ten randomly labelled examples, add batches of ten chosen by the strategy under test, retrain, and measure accuracy on a test set that is never touched. Every curve is the average of <strong>twenty independent draws</strong> — train/test split and seed set included — and every comparison is <strong>paired</strong>: the same seed gives random sampling and the tested strategy exactly the same starting point, which makes a Wilcoxon test meaningful.</p><p>Five strategies: random sampling; <strong>margin</strong> (the gap between the two most likely classes — the smaller it is, the more ambiguous the example); <strong>entropy</strong> of the predicted distribution; <strong>diversity</strong> (k-centres: the example farthest from everything already labelled); and <strong>margin then diversity</strong>, which shortlists ambiguous examples before picking ones far apart from each other.</p>
+
+      <figure class="wide">
+        <div class="quiz" id="al">
+          <div class="quiz-head">
+            <span class="tabs">
+              <label for="al-strategy">Strategy</label>
+              <select id="al-strategy">
+                <option value="marge">margin</option>
+                <option value="aleatoire">random</option>
+                <option value="marge+diversite">margin + diversity</option>
+              </select>
+            </span>
+            <span class="score" id="al-score" aria-live="polite"></span>
+          </div>
+          <div class="quiz-body">
+            <div class="al-grid">
+              <div>
+                <canvas id="al-digit" width="160" height="160" role="img" aria-label="Handwritten digit to label"></canvas>
+                <div class="al-keys" id="al-keys" role="group" aria-label="Labels from 0 to 9"></div>
+              </div>
+              <svg id="al-chart" role="img" aria-label="Accuracy against the number of labels"></svg>
+            </div>
+          </div>
+          <div class="quiz-foot">
+            <span class="note" id="al-note"></span>
+            <span class="quiz-controls"><button type="button" id="al-reset">Start over</button></span>
+          </div>
+        </div>
+        <figcaption class="fig-caption"><b>Fig. 1</b> — Your turn to annotate: the strategy picks the image, you give the digit (the keyboard works too), and the model is retrained in your browser after every label. Your curve is compared with the averages measured in Python. Mislabel something and the model suffers — as it would in real life.</figcaption>
+      </figure>
+
+      <span class="step">02 · The results</span>
+      <h2>Two hundred labels are almost enough</h2>
+      <p>With <strong>200 labels out of 1,257</strong>, that is 16% of the training set, the “margin then diversity” strategy reaches 0.960 accuracy, while training on <em>all</em> the labels tops out at 0.967. Random sampling stays at 0.926 on the same budget: that is thirty-four percentage points of error removed, for the same human work.</p>
+      <figure class="wide">
+        <img src="../../assets/fig/annotation-courbes.png" alt="Accuracy curves of the five strategies against the number of labels" width="1292" height="781" loading="lazy" style="max-width:660px">
+        <figcaption class="fig-caption"><b>Fig. 2</b> — Average of twenty draws, standard deviation as a band. The dashed line is the accuracy obtained with all 1,257 available labels.</figcaption>
+      </figure>
+      <table>
+        <thead><tr><th>Accuracy by label budget</th><th style="text-align:right">20</th><th style="text-align:right">50</th><th style="text-align:right">100</th><th style="text-align:right">200</th></tr></thead>
+        <tbody>
+          <tr class="best"><td>margin + diversity</td><td class="n">0,641</td><td class="n">0,871</td><td class="n">0,927</td><td class="n">0,960</td></tr>
+          <tr><td>margin</td><td class="n">0,573</td><td class="n">0,855</td><td class="n">0,919</td><td class="n">0,958</td></tr>
+          <tr><td>diversity</td><td class="n">0,592</td><td class="n">0,834</td><td class="n">0,907</td><td class="n">0,942</td></tr>
+          <tr><td>random</td><td class="n">0,571</td><td class="n">0,799</td><td class="n">0,887</td><td class="n">0,926</td></tr>
+          <tr><td>entropy</td><td class="n">0,499</td><td class="n">0,687</td><td class="n">0,866</td><td class="n">0,936</td></tr>
+        </tbody>
+      </table>
+      <p>The gaps are significant at every budget for “margin then diversity” (p = 0.002 at twenty labels, p &lt; 0.001 after that), and the conclusion survives a change of classifier: with a random forest, margin reaches 0.971 against 0.924 for random sampling at two hundred labels.</p>
+
+      <span class="step">03 · What did not work</span>
+      <h2>Entropy, and problems that are too easy</h2>
+      <p><strong>Entropy does worse than random sampling at the start.</strong> At twenty labels it falls to 0.499 against 0.571 (p = 0.012); at fifty, 0.687 against 0.799 (p = 0.0002). The reason lies in the task: with ten classes and a barely trained model, the predicted distribution is flat almost everywhere, and entropy then selects the most confusing examples — often the most atypical ones, those you learn the least from. Margin, which only looks at the two best classes, aims far better.</p><p>A second limit, even more useful to know: <strong>on an easy problem, every strategy is equivalent</strong>. On the binary breast cancer diagnosis dataset, at one hundred and twenty labels, “margin then diversity” gives 0.974 and random sampling 0.967, while full training reaches 0.975. In other words, active learning only pays off when the task is hard or the classes are many. That is exactly the question to ask before offering it to a client.</p>
+
+      <span class="step">04 · In the browser</span>
+      <h2>Is the model you are training the right one?</h2>
+      <p>The sandbox calls no server: the multinomial logistic regression is rewritten in JavaScript, trained by gradient descent after each label, and evaluated on three hundred held-out images. It remained to check that it matches the reference implementation.</p><p>Over five games played automatically with the true labels, the browser model reaches 86.2% ± 1.3 at fifty labels and 89.1% ± 1.4 at seventy, against 85.5% ± 2.0 and 88.9% ± 1.7 for scikit-learn under the same conditions: <strong>less than one point apart from forty labels on</strong>. Below that, the browser model is even slightly better — its regularisation and limited number of iterations protect it when examples can be counted on one hand.</p>
+
+      <nav class="next" aria-label="Next">
+        <a href="../../index.html#experiences">← All experiments</a>
+        <a href="https://github.com/MerabtiAmar/active-learning-budget" rel="noopener">Code and results ↗</a>
+        <a href="../../sandbox.html">Sandbox →</a>
+      </nav>
+    </article>
+  </div>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <span>© 2026 Amar Merabti · text and photographs, all rights reserved</span>
+    <span><a href="mailto:merabtiamar91@gmail.com">merabtiamar91@gmail.com</a></span>
+  </div>
+</footer>
+<script src="../../assets/data/annotation.js"></script>
+<script src="../../assets/js/annotation.js"></script>
+</body>
+</html>

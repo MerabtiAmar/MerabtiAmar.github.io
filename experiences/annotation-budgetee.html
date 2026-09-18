@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Combien vaut une étiquette ? — Amar Merabti</title>
+  <meta name="description" content="Apprentissage actif mesuré : cinq stratégies de sélection comparées à budget fixe, sur deux jeux et deux classifieurs, avec tests appariés. L'entropie fait pire que le hasard au démarrage.">
+  <meta name="author" content="Amar Merabti">
+  <link rel="canonical" href="https://merabtiamar.github.io/experiences/annotation-budgetee.html">
+  <link rel="alternate" hreflang="fr" href="https://merabtiamar.github.io/experiences/annotation-budgetee.html">
+  <link rel="alternate" hreflang="en" href="https://merabtiamar.github.io/en/experiences/annotation-budgetee.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Combien vaut une étiquette ?">
+  <meta property="og:description" content="99 % de la performance finale avec 16 % des étiquettes — et l'entropie, stratégie la plus enseignée, fait pire que le tirage au hasard au démarrage.">
+  <meta property="og:url" content="https://merabtiamar.github.io/experiences/annotation-budgetee.html">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:site_name" content="Amar Merabti">
+  <meta property="og:image" content="https://merabtiamar.github.io/assets/img/og-fr.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Amar Merabti, data scientist — disponible en octobre 2026">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/css/site.css">
+</head>
+<body>
+<a class="skip" href="#contenu">Aller au contenu</a>
+
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="../index.html">Amar Merabti <span>· carnet</span></a>
+    <nav class="nav" aria-label="Sections">
+      <a href="../index.html#experiences">Expériences</a>
+      <a href="../index.html#parcours">Parcours</a>
+      <a href="../index.html#atelier">Atelier</a>
+      <a href="../sandbox.html">Sandbox</a>
+      <a href="../index.html#recherche">Ce que je cherche</a>
+      <a href="../index.html#contact">Contact</a>
+    </nav>
+    <a class="lang" href="../en/experiences/annotation-budgetee.html" hreflang="en" lang="en" title="English version">EN</a>
+  </div>
+</header>
+
+<main id="contenu">
+  <section class="case-hero">
+    <div class="wrap">
+      <a class="back" href="../index.html#exp-annotation">← Retour au carnet</a>
+      <p class="label" style="margin-top:28px">Exp. 07 · 2026 · projet personnel</p>
+      <h1>Combien vaut une étiquette&nbsp;?</h1>
+      <p class="question">Quand un humain ne peut en annoter que deux cents, lesquelles faut-il lui donner&nbsp;?</p>
+      <div class="facts-row">
+        <div><div class="num">99 %</div><div class="cap">de la performance finale atteinte avec 16 % des étiquettes</div></div>
+        <div><div class="num">+7,0</div><div class="cap">points gagnés sur le tirage au hasard dès 20 étiquettes (p = 0,002)</div></div>
+        <div><div class="num">−11,2</div><div class="cap">points perdus par l'entropie face au hasard à 50 étiquettes (p = 0,0002)</div></div>
+        <div><div class="num">20</div><div class="cap">tirages indépendants par stratégie, comparaisons appariées</div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <article class="article">
+      <span class="step">01 · Le protocole</span>
+      <h2>Mesurer ce que coûte vraiment une annotation</h2>
+      <p>Étiqueter coûte cher&nbsp;: c'est le constat de mon stage chez Nricher, où un chargé de compte relit un échantillon de mille produits en un à deux jours. La question posée ici est la même, isolée et mesurée&nbsp;: à budget d'annotation fixe, quelle stratégie de sélection fait monter le modèle le plus vite&nbsp;?</p><p>Le protocole est volontairement sévère. On part de dix exemples étiquetés au hasard, on ajoute des lots de dix choisis par la stratégie testée, on réentraîne et on mesure l'exactitude sur un jeu de test jamais touché. Chaque courbe est la moyenne de <strong>vingt tirages indépendants</strong> — partage entraînement/test et amorce compris — et chaque comparaison est <strong>appariée</strong>&nbsp;: la même graine donne au hasard et à la stratégie testée exactement la même situation de départ, ce qui permet un test de Wilcoxon honnête.</p><p>Cinq stratégies&nbsp;: tirage au hasard&nbsp;; <strong>marge</strong> (l'écart entre les deux classes les plus probables — plus il est petit, plus l'exemple est ambigu)&nbsp;; <strong>entropie</strong> de la distribution prédite&nbsp;; <strong>diversité</strong> (k-centres&nbsp;: l'exemple le plus loin de tout ce qui est déjà étiqueté)&nbsp;; et <strong>marge puis diversité</strong>, qui présélectionne les ambigus avant d'y chercher des exemples écartés les uns des autres.</p>
+
+      <figure class="wide">
+        <div class="quiz" id="al">
+          <div class="quiz-head">
+            <span class="tabs">
+              <label for="al-strategy">Stratégie</label>
+              <select id="al-strategy">
+                <option value="marge">marge</option>
+                <option value="aleatoire">hasard</option>
+                <option value="marge+diversite">marge + diversité</option>
+              </select>
+            </span>
+            <span class="score" id="al-score" aria-live="polite"></span>
+          </div>
+          <div class="quiz-body">
+            <div class="al-grid">
+              <div>
+                <canvas id="al-digit" width="160" height="160" role="img" aria-label="Chiffre manuscrit à étiqueter"></canvas>
+                <div class="al-keys" id="al-keys" role="group" aria-label="Étiquettes de 0 à 9"></div>
+              </div>
+              <svg id="al-chart" role="img" aria-label="Courbe d'exactitude en fonction du nombre d'étiquettes"></svg>
+            </div>
+          </div>
+          <div class="quiz-foot">
+            <span class="note" id="al-note"></span>
+            <span class="quiz-controls"><button type="button" id="al-reset">Recommencer</button></span>
+          </div>
+        </div>
+        <figcaption class="fig-caption"><b>Fig. 1</b> — À vous d'annoter&nbsp;: la stratégie choisit l'image, vous donnez le chiffre (au clavier aussi), et le modèle est réentraîné dans votre navigateur après chaque étiquette. Votre courbe se compare aux moyennes mesurées en Python. Si vous vous trompez d'étiquette, le modèle en pâtit — comme dans la vraie vie.</figcaption>
+      </figure>
+
+      <span class="step">02 · Les résultats</span>
+      <h2>Deux cents étiquettes suffisent presque</h2>
+      <p>Avec <strong>200 étiquettes sur 1&nbsp;257</strong>, soit 16 % du jeu d'entraînement, la stratégie « marge puis diversité » atteint 0,960 d'exactitude, quand l'entraînement sur <em>toutes</em> les étiquettes plafonne à 0,967. Le tirage au hasard, lui, reste à 0,926 avec le même budget&nbsp;: c'est trente-quatre points de pourcentage d'erreur en moins, pour le même travail humain.</p>
+      <figure class="wide">
+        <img src="../assets/fig/annotation-courbes.png" alt="Courbes d'exactitude des cinq stratégies en fonction du nombre d'étiquettes" width="1292" height="781" loading="lazy" style="max-width:660px">
+        <figcaption class="fig-caption"><b>Fig. 2</b> — Moyenne de vingt tirages, écart-type en bande. La ligne pointillée est l'exactitude obtenue avec les 1 257 étiquettes disponibles.</figcaption>
+      </figure>
+      <table>
+        <thead><tr><th>Exactitude par budget d'étiquettes</th><th style="text-align:right">20</th><th style="text-align:right">50</th><th style="text-align:right">100</th><th style="text-align:right">200</th></tr></thead>
+        <tbody>
+          <tr class="best"><td>marge + diversité</td><td class="n">0,641</td><td class="n">0,871</td><td class="n">0,927</td><td class="n">0,960</td></tr>
+          <tr><td>marge</td><td class="n">0,573</td><td class="n">0,855</td><td class="n">0,919</td><td class="n">0,958</td></tr>
+          <tr><td>diversité</td><td class="n">0,592</td><td class="n">0,834</td><td class="n">0,907</td><td class="n">0,942</td></tr>
+          <tr><td>hasard</td><td class="n">0,571</td><td class="n">0,799</td><td class="n">0,887</td><td class="n">0,926</td></tr>
+          <tr><td>entropie</td><td class="n">0,499</td><td class="n">0,687</td><td class="n">0,866</td><td class="n">0,936</td></tr>
+        </tbody>
+      </table>
+      <p>Les écarts sont significatifs à tous les budgets pour « marge puis diversité » (p&nbsp;=&nbsp;0,002 à vingt étiquettes, p&nbsp;&lt;&nbsp;0,001 ensuite), et la conclusion résiste au changement de classifieur&nbsp;: avec une forêt aléatoire, la marge atteint 0,971 contre 0,924 pour le hasard à deux cents étiquettes.</p>
+
+      <span class="step">03 · Ce qui n'a pas marché</span>
+      <h2>L'entropie, et les problèmes trop faciles</h2>
+      <p><strong>L'entropie fait pire que le tirage au hasard au démarrage.</strong> À vingt étiquettes, elle tombe à 0,499 contre 0,571 (p&nbsp;=&nbsp;0,012)&nbsp;; à cinquante, 0,687 contre 0,799 (p&nbsp;=&nbsp;0,0002). L'explication tient à la tâche&nbsp;: avec dix classes et un modèle à peine formé, la distribution prédite est plate presque partout, et l'entropie sélectionne alors les exemples les plus confus — souvent les plus atypiques, ceux dont on apprend le moins. La marge, qui ne regarde que les deux meilleures classes, vise beaucoup mieux.</p><p>Deuxième limite, plus utile encore à connaître&nbsp;: <strong>sur un problème facile, toutes les stratégies se valent</strong>. Sur le jeu binaire de diagnostic du cancer du sein, à cent vingt étiquettes, « marge puis diversité » donne 0,974 et le hasard 0,967, quand l'entraînement complet atteint 0,975. Autrement dit, l'apprentissage actif ne se justifie que si la tâche est difficile ou les classes nombreuses. C'est exactement la question à poser avant de le proposer à un client.</p>
+
+      <span class="step">04 · Dans le navigateur</span>
+      <h2>Le modèle que vous entraînez est-il le bon&nbsp;?</h2>
+      <p>Le bac à sable n'appelle aucun serveur&nbsp;: la régression logistique multinomiale y est réécrite en JavaScript, entraînée par descente de gradient après chaque étiquette, et évaluée sur trois cents images tenues à part. Restait à vérifier qu'elle vaut bien l'implémentation de référence.</p><p>Sur cinq parties jouées automatiquement avec les vraies étiquettes, le modèle du navigateur atteint 86,2&nbsp;% ± 1,3 à cinquante étiquettes et 89,1&nbsp;% ± 1,4 à soixante-dix, contre 85,5&nbsp;% ± 2,0 et 88,9&nbsp;% ± 1,7 pour scikit-learn dans les mêmes conditions&nbsp;: <strong>moins d'un point d'écart dès quarante étiquettes</strong>. En dessous, le modèle du navigateur est même un peu meilleur — sa régularisation et son nombre d'itérations limité le protègent quand les exemples se comptent sur les doigts.</p>
+
+      <nav class="next" aria-label="Suite">
+        <a href="../index.html#experiences">← Toutes les expériences</a>
+        <a href="https://github.com/MerabtiAmar/active-learning-budget" rel="noopener">Code et résultats ↗</a>
+        <a href="../sandbox.html">Sandbox →</a>
+      </nav>
+    </article>
+  </div>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <span>© 2026 Amar Merabti · textes et photos tous droits réservés</span>
+    <span><a href="mailto:merabtiamar91@gmail.com">merabtiamar91@gmail.com</a></span>
+  </div>
+</footer>
+<script src="../assets/data/annotation.js"></script>
+<script src="../assets/js/annotation.js"></script>
+</body>
+</html>
