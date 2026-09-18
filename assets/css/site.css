@@ -533,6 +533,31 @@ details.plain summary { cursor: pointer; font-family: var(--mono); font-size: 14
 .quiz .extracted { margin: 0 0 12px; font-family: var(--mono); font-size: 13px; color: var(--muted); display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
 .quiz .extracted b { font-weight: 500; font-size: 15px; color: var(--accent); }
 
+/* Bac à sable : réseau de neurones et argumentation */
+#nn-graph, #arg-graph { width: 100%; max-width: 560px; height: auto; margin-bottom: 14px; }
+#nn-graph text, #arg-graph text { font-family: var(--mono); }
+.nn-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px 14px; margin-bottom: 14px; }
+.nn-row { display: flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 12px; color: var(--muted); }
+.nn-row .nn-name { flex: 1 1 auto; }
+.nn-row .nn-val { min-width: 2.6em; text-align: right; color: var(--ink); }
+.nn-row button { padding: 1px 7px; line-height: 1.4; }
+.nn-truth { display: grid; gap: 2px; max-width: 30em; }
+.nn-trow { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; padding: 4px 8px; font-family: var(--mono); font-size: 12.5px; color: var(--ink-2); border: 1px solid transparent; cursor: pointer; }
+.nn-trow.nn-thead { color: var(--muted); font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.04em; cursor: default; }
+.nn-trow.ok { border-color: var(--ok); }
+.nn-trow.ko { border-color: var(--rule); }
+.nn-status.done { color: var(--ok); }
+.quiz-foot label, .quiz-head label { margin-right: 6px; }
+.quiz select { font-family: var(--mono); font-size: 12.5px; background: var(--paper); color: var(--ink); border: 1px solid var(--rule-strong); border-radius: 2px; padding: 3px 6px; }
+.arg-out { display: grid; gap: 10px; }
+.arg-block { display: grid; gap: 2px; }
+.arg-title { font-family: var(--mono); font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+.arg-sets { font-family: var(--mono); font-size: 13.5px; color: var(--ink); overflow-wrap: anywhere; }
+.arg-accept { display: grid; gap: 2px; max-width: 26em; margin-top: 4px; }
+.arg-arow { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; font-family: var(--mono); font-size: 12.5px; color: var(--ink-2); }
+.arg-arow.arg-ahead { color: var(--muted); font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.04em; }
+@media (max-width: 620px) { .nn-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
 @media print {
   .topbar, .modes, .board-controls, .filters { display: none !important; }
   body { background: #fff; }

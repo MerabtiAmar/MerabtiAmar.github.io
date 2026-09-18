@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bac à sable : un réseau à régler, un débat à trancher — Amar Merabti</title>
+  <meta name="description" content="Deux outils de mes projets de cours, portés dans le navigateur : régler un réseau de neurones à seuil jusqu'à obtenir un XOR, et calculer les extensions d'un système d'argumentation de Dung.">
+  <meta name="author" content="Amar Merabti">
+  <link rel="canonical" href="https://merabtiamar.github.io/bac-a-sable.html">
+  <link rel="alternate" hreflang="fr" href="https://merabtiamar.github.io/bac-a-sable.html">
+  <link rel="alternate" hreflang="en" href="https://merabtiamar.github.io/en/bac-a-sable.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Bac à sable : un réseau à régler, un débat à trancher">
+  <meta property="og:description" content="Deux outils de mes projets de cours, portés dans le navigateur : régler un réseau de neurones à seuil jusqu'à obtenir un XOR, et calculer les extensions d'un système d'argumentation de Dung.">
+  <meta property="og:url" content="https://merabtiamar.github.io/bac-a-sable.html">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:site_name" content="Amar Merabti">
+  <meta property="og:image" content="https://merabtiamar.github.io/assets/img/og-fr.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Amar Merabti, data scientist — disponible en octobre 2026">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/css/site.css">
+</head>
+<body>
+<a class="skip" href="#contenu">Aller au contenu</a>
+
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="index.html">Amar Merabti <span>· carnet</span></a>
+    <nav class="nav" aria-label="Sections">
+      <a href="index.html#experiences">Expériences</a>
+      <a href="index.html#parcours">Parcours</a>
+      <a href="index.html#atelier">Atelier</a>
+      <a href="index.html#recherche">Ce que je cherche</a>
+      <a href="index.html#contact">Contact</a>
+    </nav>
+    <a class="lang" href="en/bac-a-sable.html" hreflang="en" lang="en" title="English version">EN</a>
+  </div>
+</header>
+
+<main id="contenu">
+  <section class="case-hero">
+    <div class="wrap">
+      <a class="back" href="index.html#atelier">← Retour à l'atelier</a>
+      <p class="label" style="margin-top:28px">Atelier · deux outils de cours, remis en état de marche</p>
+      <h1>Deux outils de cours, à essayer ici</h1>
+      <p class="question">Un réseau de neurones se comprend-il mieux quand on règle soi-même ses poids ?</p>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <article class="article">
+      <span class="step">01 · Réseau de neurones</span>
+      <h2>Réglez-le jusqu'à obtenir un XOR</h2>
+      <p>Pendant le cours d'apprentissage automatique du M1 DCI, j'avais besoin de vérifier à la main des réseaux de neurones à seuil. J'ai écrit un petit outil Tkinter pour les construire à la souris et suivre la propagation avant, neurone par neurone. Le voici porté dans le navigateur, avec le calcul d'origine&nbsp;: chaque neurone vaut <code>activation(Σ poids × entrée + biais)</code>, et l'activation par défaut est un seuil — 1 si la somme est positive, 0 sinon.</p><p>Le XOR est l'exemple classique&nbsp;: aucun neurone seul ne peut le produire, il en faut deux dans une couche cachée. Les quatre combinaisons d'entrée sont vérifiées en direct sous le réseau.</p>
+      <figure class="wide">
+        <div class="quiz" id="nn">
+          <div class="quiz-head">
+            <span class="tabs">
+              <button type="button" data-input="0"></button>
+              <button type="button" data-input="1"></button>
+            </span>
+            <span class="score nn-status" id="nn-status"></span>
+          </div>
+          <div class="quiz-body">
+            <svg id="nn-graph" role="img" aria-label="Réseau de neurones à deux entrées, deux neurones cachés et une sortie"></svg>
+            <div class="nn-grid" id="nn-controls"></div>
+            <div class="nn-truth" id="nn-table"></div>
+          </div>
+          <div class="quiz-foot">
+            <span class="note">
+              <label for="nn-activation">Activation</label>
+              <select id="nn-activation">
+                <option value="seuil">seuil</option>
+                <option value="sigmoide">sigmoïde</option>
+                <option value="relu">ReLU</option>
+              </select>
+            </span>
+            <span class="quiz-controls">
+              <button type="button" id="nn-zero">Tout remettre à zéro</button>
+              <button type="button" id="nn-solve">Charger la solution</button>
+            </span>
+          </div>
+        </div>
+        <figcaption class="fig-caption"><b>Fig. 1</b> — Les poids et les biais se règlent par pas de 0,5. Les quatre lignes de la table de vérité sont recalculées à chaque changement&nbsp;; cliquez une ligne pour envoyer ces entrées dans le réseau. « Charger la solution » reprend le fichier <code>examples/xor.json</code> du dépôt.</figcaption>
+      </figure>
+
+      <span class="step">02 · Argumentation</span>
+      <h2>Qui gagne le débat ?</h2>
+      <p>Un système d'argumentation à la Dung ne dit rien du contenu des arguments&nbsp;: il ne connaît que <em>qui attaque qui</em>. Les questions intéressantes viennent ensuite. Un ensemble d'arguments est <strong>sans conflit</strong> s'il ne s'attaque pas lui-même, <strong>complet</strong> s'il défend tous ses membres et contient tout ce qu'il défend, et <strong>stable</strong> s'il attaque tout ce qu'il exclut.</p><p>Le solveur ci-dessous est celui de mon projet de Master 1, porté tel quel&nbsp;: il énumère tous les sous-ensembles et teste ces propriétés. Un argument est accepté de façon <strong>crédule</strong> s'il appartient à au moins une extension, <strong>sceptique</strong> s'il appartient à toutes.</p>
+      <figure class="wide">
+        <div class="quiz" id="arg">
+          <div class="quiz-head">
+            <span class="tabs">
+              <button type="button" id="arg-add">Ajouter</button>
+              <button type="button" id="arg-del">Supprimer</button>
+            </span>
+            <span class="score">
+              <label for="arg-example">Exemple</label>
+              <select id="arg-example">
+                <option value="dilemme">dilemme</option>
+                <option value="chaine">chaîne A→B→C</option>
+                <option value="cycle">cycle impair</option>
+              </select>
+            </span>
+          </div>
+          <div class="quiz-body">
+            <svg id="arg-graph" role="img" aria-label="Graphe d'arguments et d'attaques"></svg>
+            <div class="arg-out" id="arg-out"></div>
+          </div>
+          <div class="quiz-foot"><span class="note" id="arg-hint"></span></div>
+        </div>
+        <figcaption class="fig-caption"><b>Fig. 2</b> — Touchez un argument puis un autre pour créer ou retirer une attaque. Le cycle impair n'a aucune extension stable&nbsp;: c'est le contre-exemple qui justifie d'étudier plusieurs sémantiques.</figcaption>
+      </figure>
+
+      <nav class="next" aria-label="Suite">
+        <a href="index.html#atelier">← Tous les projets</a>
+        <a href="https://github.com/MerabtiAmar/neural-network-visualizer" rel="noopener">Code du visualiseur ↗</a>
+        <a href="https://github.com/MerabtiAmar/argumentation-solver" rel="noopener">Code du solveur ↗</a>
+      </nav>
+    </article>
+  </div>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <span>© 2026 Amar Merabti · textes et photos tous droits réservés</span>
+    <span><a href="mailto:merabtiamar91@gmail.com">merabtiamar91@gmail.com</a></span>
+  </div>
+</footer>
+<script src="assets/js/reseau.js"></script>
+<script src="assets/js/argumentation.js"></script>
+</body>
+</html>

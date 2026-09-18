@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sandbox: a network to tune, a debate to settle — Amar Merabti</title>
+  <meta name="description" content="Two tools from my course projects, ported to the browser: tune a threshold neural network until it computes a XOR, and compute the extensions of a Dung argumentation framework.">
+  <meta name="author" content="Amar Merabti">
+  <link rel="canonical" href="https://merabtiamar.github.io/en/bac-a-sable.html">
+  <link rel="alternate" hreflang="fr" href="https://merabtiamar.github.io/bac-a-sable.html">
+  <link rel="alternate" hreflang="en" href="https://merabtiamar.github.io/en/bac-a-sable.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Sandbox: a network to tune, a debate to settle">
+  <meta property="og:description" content="Two tools from my course projects, ported to the browser: tune a threshold neural network until it computes a XOR, and compute the extensions of a Dung argumentation framework.">
+  <meta property="og:url" content="https://merabtiamar.github.io/en/bac-a-sable.html">
+  <meta property="og:locale" content="en_GB">
+  <meta property="og:site_name" content="Amar Merabti">
+  <meta property="og:image" content="https://merabtiamar.github.io/assets/img/og-en.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Amar Merabti, data scientist — available from October 2026">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/css/site.css">
+</head>
+<body>
+<a class="skip" href="#contenu">Skip to content</a>
+
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="../index.html">Amar Merabti <span>· notebook</span></a>
+    <nav class="nav" aria-label="Sections">
+      <a href="../index.html#experiences">Experiments</a>
+      <a href="../index.html#parcours">Path</a>
+      <a href="../index.html#atelier">Workshop</a>
+      <a href="../index.html#recherche">What I'm looking for</a>
+      <a href="../index.html#contact">Contact</a>
+    </nav>
+    <a class="lang" href="../bac-a-sable.html" hreflang="fr" lang="fr" title="Version française">FR</a>
+  </div>
+</header>
+
+<main id="contenu">
+  <section class="case-hero">
+    <div class="wrap">
+      <a class="back" href="../index.html#atelier">← Back to the workshop</a>
+      <p class="label" style="margin-top:28px">Workshop · two course tools, put back to work</p>
+      <h1>Two course tools, to try right here</h1>
+      <p class="question">Do you understand a neural network better once you have set its weights yourself?</p>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <article class="article">
+      <span class="step">01 · Neural network</span>
+      <h2>Tune it until it computes a XOR</h2>
+      <p>During the machine learning course of my first master's year, I needed to check threshold neural networks by hand. I wrote a small Tkinter tool to build them with the mouse and follow the forward pass, neuron by neuron. Here it is in the browser, with the original computation: each neuron holds <code>activation(Σ weight × input + bias)</code>, and the default activation is a threshold — 1 if the sum is positive, 0 otherwise.</p><p>XOR is the classic example: no single neuron can produce it, you need two in a hidden layer. The four input combinations are checked live under the network.</p>
+      <figure class="wide">
+        <div class="quiz" id="nn">
+          <div class="quiz-head">
+            <span class="tabs">
+              <button type="button" data-input="0"></button>
+              <button type="button" data-input="1"></button>
+            </span>
+            <span class="score nn-status" id="nn-status"></span>
+          </div>
+          <div class="quiz-body">
+            <svg id="nn-graph" role="img" aria-label="Neural network with two inputs, two hidden neurons and one output"></svg>
+            <div class="nn-grid" id="nn-controls"></div>
+            <div class="nn-truth" id="nn-table"></div>
+          </div>
+          <div class="quiz-foot">
+            <span class="note">
+              <label for="nn-activation">Activation</label>
+              <select id="nn-activation">
+                <option value="seuil">threshold</option>
+                <option value="sigmoide">sigmoid</option>
+                <option value="relu">ReLU</option>
+              </select>
+            </span>
+            <span class="quiz-controls">
+              <button type="button" id="nn-zero">Reset to zero</button>
+              <button type="button" id="nn-solve">Load the solution</button>
+            </span>
+          </div>
+        </div>
+        <figcaption class="fig-caption"><b>Fig. 1</b> — Weights and biases move in steps of 0.5. The four rows of the truth table are recomputed on every change; click a row to send those inputs through the network. “Load the solution” uses the <code>examples/xor.json</code> file from the repository.</figcaption>
+      </figure>
+
+      <span class="step">02 · Argumentation</span>
+      <h2>Who wins the debate?</h2>
+      <p>A Dung argumentation framework says nothing about what the arguments mean: it only knows <em>who attacks whom</em>. The interesting questions come next. A set of arguments is <strong>conflict-free</strong> if it does not attack itself, <strong>complete</strong> if it defends all its members and contains everything it defends, and <strong>stable</strong> if it attacks everything it leaves out.</p><p>The solver below is the one from my first-year master's project, ported as is: it enumerates every subset and tests those properties. An argument is <strong>credulously</strong> accepted if it belongs to at least one extension, <strong>skeptically</strong> accepted if it belongs to all of them.</p>
+      <figure class="wide">
+        <div class="quiz" id="arg">
+          <div class="quiz-head">
+            <span class="tabs">
+              <button type="button" id="arg-add">Add</button>
+              <button type="button" id="arg-del">Remove</button>
+            </span>
+            <span class="score">
+              <label for="arg-example">Example</label>
+              <select id="arg-example">
+                <option value="dilemme">dilemma</option>
+                <option value="chaine">chain A→B→C</option>
+                <option value="cycle">odd cycle</option>
+              </select>
+            </span>
+          </div>
+          <div class="quiz-body">
+            <svg id="arg-graph" role="img" aria-label="Graph of arguments and attacks"></svg>
+            <div class="arg-out" id="arg-out"></div>
+          </div>
+          <div class="quiz-foot"><span class="note" id="arg-hint"></span></div>
+        </div>
+        <figcaption class="fig-caption"><b>Fig. 2</b> — Tap one argument then another to add or remove an attack. The odd cycle has no stable extension at all: it is the counter-example that justifies studying several semantics.</figcaption>
+      </figure>
+
+      <nav class="next" aria-label="Next">
+        <a href="../index.html#atelier">← All projects</a>
+        <a href="https://github.com/MerabtiAmar/neural-network-visualizer" rel="noopener">Visualiser code ↗</a>
+        <a href="https://github.com/MerabtiAmar/argumentation-solver" rel="noopener">Solver code ↗</a>
+      </nav>
+    </article>
+  </div>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <span>© 2026 Amar Merabti · text and photographs, all rights reserved</span>
+    <span><a href="mailto:merabtiamar91@gmail.com">merabtiamar91@gmail.com</a></span>
+  </div>
+</footer>
+<script src="../assets/js/reseau.js"></script>
+<script src="../assets/js/argumentation.js"></script>
+</body>
+</html>
