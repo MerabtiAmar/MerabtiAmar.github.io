@@ -306,6 +306,11 @@
     if (!svg || !wrap || !tip) return;
     var NS = "http://www.w3.org/2000/svg";
     var geo = null, cursorT = null;
+    var hint = document.getElementById("log-hint"), deskHint = hint ? hint.textContent : "";
+    // Défilement par étapes des écrans étroits : la diagraphie est dessinée en entier, plus large
+    // que l'écran, et se déplace toute seule d'un bloc de lecture au suivant.
+    var panMode = false, pan = 0, maxPan = 0, frozen = [], stations = [0], stIdx = 0;
+    var timer = 0, raf = 0, dragging = false, inView = false, touched = false;
 
     function el(name, attrs, parent, text) {
       var n = document.createElementNS(NS, name);
@@ -328,23 +333,36 @@
 
     var renderedWidth = 0;
     function render() {
-      var Wd = wrap.clientWidth;
-      if (!Wd || Wd === renderedWidth) return;
-      renderedWidth = Wd;
-      var wide = Wd >= 880, mid = Wd >= 560;
-      var head = 14, ppy = wide ? 112 : 92;
-      var depthW = mid ? 56 : 42, formW = wide ? 168 : 34, terrW = wide ? 132 : 34, gap = 8;
-      var eventsW = wide ? Math.max(220, Wd - depthW - formW - terrW - 4 * 96 - 6 * gap) : 0;
-      var trackW = Math.max(44, (Wd - depthW - formW - terrW - eventsW - (eventsW ? 6 : 5) * gap) / 4);
+      var vis = wrap.clientWidth;
+      if (!vis || vis === renderedWidth) return;
+      renderedWidth = vis;
+      stop();
+      panMode = vis < 880;               // sous 880 px : même dessin, mais il défile
+      var gap = 8, head = 14, ppy = panMode ? 96 : 112;
+      var depthW = panMode ? 46 : 56, formW, terrW, trackW, eventsW, Wd;
+      if (panMode) {
+        var avail = vis - depthW - gap - 2;   // une étape de lecture = une largeur d'écran
+        formW = Math.round(avail * 0.52); terrW = avail - formW - gap;
+        trackW = Math.floor((avail - 3 * gap) / 4);
+        eventsW = avail;
+        Wd = depthW + gap + formW + gap + terrW + gap + 4 * trackW + 4 * gap + eventsW;
+      } else {
+        formW = 168; terrW = 132;
+        eventsW = Math.max(220, vis - depthW - formW - terrW - 4 * 96 - 6 * gap);
+        trackW = Math.max(44, (vis - depthW - formW - terrW - eventsW - 6 * gap) / 4);
+        Wd = vis;
+      }
       var Hd = head + (LOG.end - LOG.start) * ppy + 14;
-      svg.setAttribute("viewBox", "0 0 " + Wd + " " + Hd);
+      maxPan = Math.max(0, Wd - vis);
+      pan = 0; stIdx = 0; frozen = [];
       svg.setAttribute("height", Hd);
       while (svg.firstChild) svg.removeChild(svg.firstChild);
 
       function y(t) { return head + (t - LOG.start) * ppy; }
       var x0 = depthW + gap, xForm = x0, xTerr = xForm + formW + gap, xTracks = xTerr + terrW + gap;
       var xEvents = xTracks + 4 * trackW + 4 * gap;
-      geo = { y: y, head: head, ppy: ppy, Wd: Wd, Hd: Hd, x0: x0 };
+      geo = { y: y, head: head, ppy: ppy, Wd: vis, Hd: Hd, x0: x0, total: Wd };
+      stations = panMode ? [0, Math.min(maxPan, xTracks - x0), maxPan] : [0];
 
       var ink = "var(--ink)", ink2 = "var(--ink-2)", muted = "var(--muted)", rule = "var(--rule)", accent = "var(--accent)";
       var defs = el("defs", {}, svg);
@@ -361,40 +379,39 @@
       var g = el("g", {}, svg);
       // En-têtes de colonnes : placés en HTML au-dessus du dessin, pour rester visibles pendant le défilement
       if (bar) while (bar.firstChild) bar.removeChild(bar.firstChild);
-      function header(x, w, title, sub) {
+      function header(x, w, title, sub, fixed) {
         if (!bar) return;
         var s = document.createElement("span");
-        s.style.left = (x / Wd * 100) + "%";
-        s.style.width = (w / Wd * 100) + "%";
+        s.setAttribute("data-x", x);
+        if (fixed) s.className = "fixed";          // la colonne des années ne défile pas
+        s.style.left = x + "px";
+        s.style.width = w + "px";
         s.textContent = title;
         if (sub) { s.appendChild(document.createElement("br")); s.appendChild(document.createTextNode(sub)); }
         bar.appendChild(s);
       }
-      header(0, depthW, mid ? tr("Année", "Year") : tr("An", "Yr"));
-      header(xForm, formW, wide ? tr("Formation", "Education") : tr("F.", "E."));
-      header(xTerr, terrW, wide ? tr("Terrain", "Industry") : tr("T.", "I."));
-      LOG.tracks.forEach(function (tr, i) {
-        if (trackW >= 96) header(xTracks + i * (trackW + gap), trackW, tr.name[0], tr.name[1]);
-        else header(xTracks + i * (trackW + gap), trackW, tr.short);
+      header(xForm, formW, tr("Formation", "Education"));
+      header(xTerr, terrW, tr("Terrain", "Industry"));
+      LOG.tracks.forEach(function (track, i) {
+        if (trackW >= 96) header(xTracks + i * (trackW + gap), trackW, track.name[0], track.name[1]);
+        else header(xTracks + i * (trackW + gap), trackW, track.short);
       });
-      if (eventsW) header(xEvents, eventsW, tr("Faits marquants", "Milestones"));
+      header(xEvents, eventsW, tr("Faits marquants", "Milestones"));
+      header(0, depthW, tr("Année", "Year"), null, true);
 
       // Graduations annuelles
       for (var yr = Math.ceil(LOG.start); yr <= Math.floor(LOG.end); yr++) {
         var gl = el("line", { x1: x0, x2: Wd, y1: y(yr), y2: y(yr) }, g); gl.style.stroke = rule;
-        var lab = el("text", { x: depthW - 6, y: y(yr) + 4, "font-size": mid ? 12.5 : 11, "text-anchor": "end" }, g, mid ? String(yr) : "’" + String(yr).slice(2)); lab.style.fill = ink2;
       }
 
       // Formation
       LOG.formation.forEach(function (f) {
         var r = el("rect", { x: xForm, y: y(f.from), width: formW, height: y(f.to) - y(f.from), fill: "url(#p-" + f.pat + ")" }, g);
         r.style.stroke = "var(--rule-strong)"; r.style.opacity = 0.9;
-        if (wide) {
-          var tw = Math.min(formW - 12, 8.2 * Math.max(f.label.length, f.place.length * 0.86));
-          var bg = el("rect", { x: xForm + 5, y: y(f.from) + 6, width: tw, height: 34 }, g); bg.style.fill = "var(--paper-2)";
-          el("text", { x: xForm + 9, y: y(f.from) + 20, "font-size": 12 }, g, f.label).style.fill = ink;
-          el("text", { x: xForm + 9, y: y(f.from) + 34, "font-size": 10.5 }, g, f.place).style.fill = muted;
-        }
+        var tw = Math.min(formW - 10, 8.2 * Math.max(f.label.length, f.place.length * 0.86));
+        var bg = el("rect", { x: xForm + 5, y: y(f.from) + 6, width: tw, height: 34 }, g); bg.style.fill = "var(--paper-2)";
+        el("text", { x: xForm + 9, y: y(f.from) + 20, "font-size": 12 }, g, f.label).style.fill = ink;
+        el("text", { x: xForm + 9, y: y(f.from) + 34, "font-size": 10.5 }, g, f.place).style.fill = muted;
       });
 
       // Terrain (entreprises)
@@ -402,10 +419,8 @@
         var r = el("rect", { x: xTerr, y: y(f.from), width: terrW, height: y(f.to) - y(f.from) }, g);
         r.style.fill = "var(--accent-soft)";
         var edge = el("rect", { x: xTerr, y: y(f.from), width: 3, height: y(f.to) - y(f.from) }, g); edge.style.fill = accent;
-        if (wide) {
-          el("text", { x: xTerr + 10, y: y(f.from) + 16, "font-size": 12 }, g, f.place).style.fill = ink;
-          if (y(f.to) - y(f.from) > 34) el("text", { x: xTerr + 10, y: y(f.from) + 30, "font-size": 10.5 }, g, f.label).style.fill = muted;
-        }
+        el("text", { x: xTerr + 10, y: y(f.from) + 16, "font-size": 12 }, g, f.place).style.fill = ink;
+        if (y(f.to) - y(f.from) > 34) el("text", { x: xTerr + 10, y: y(f.from) + 30, "font-size": panMode ? 9.5 : 10.5 }, g, f.label).style.fill = muted;
       });
 
       // Courbes de compétences
@@ -442,13 +457,133 @@
       // Prochain forage
       var nx = el("line", { x1: x0, x2: xEvents - gap, y1: y(2026.78), y2: y(2026.78), "stroke-width": 1.5 }, g); nx.style.stroke = accent;
 
+      // Colonne des années : elle reste en place pendant que le reste défile
+      var gy = el("g", {}, svg);
+      el("rect", { x: 0, y: 0, width: depthW, height: Hd }, gy).style.fill = "var(--paper-2)";
+      for (var yr2 = Math.ceil(LOG.start); yr2 <= Math.floor(LOG.end); yr2++) {
+        el("text", { x: depthW - 6, y: y(yr2) + 4, "font-size": 12.5, "text-anchor": "end" }, gy,
+           String(yr2)).style.fill = ink2;
+      }
+      frozen.push(gy);
+
       // Curseur
       var cur = el("g", { id: "log-cursor", visibility: "hidden" }, svg);
       var cl = el("line", { x1: 0, x2: Wd, y1: 0, y2: 0, "stroke-width": 1 }, cur); cl.style.stroke = ink;
-      var cb = el("rect", { x: 0, y: -10, width: depthW - 2, height: 20, rx: 2 }, cur); cb.style.fill = ink;
-      var ct = el("text", { x: depthW - 6, y: 4, "font-size": 11.5, "text-anchor": "end" }, cur, ""); ct.style.fill = "var(--paper)";
+      var cbadge = el("g", {}, cur);
+      var cb = el("rect", { x: 0, y: -10, width: depthW - 2, height: 20, rx: 2 }, cbadge); cb.style.fill = ink;
+      var ct = el("text", { x: depthW - 6, y: 4, "font-size": 11.5, "text-anchor": "end" }, cbadge, ""); ct.style.fill = "var(--paper)";
       geo.cursor = { g: cur, text: ct };
+      frozen.push(cbadge);
+
+      applyPan();
+      setHint();
+      cycle();
       if (cursorT !== null) show(cursorT);
+    }
+
+    /* ---- Déplacement horizontal : trois étapes de lecture sur écran étroit ---- */
+    var STATIONS = [tr("Formation et terrain", "Education and industry"),
+                    tr("Compétences", "Skills"), tr("Faits marquants", "Milestones")];
+
+    function applyPan() {
+      if (!geo) return;
+      svg.setAttribute("viewBox", pan.toFixed(1) + " 0 " + geo.Wd + " " + geo.Hd);
+      frozen.forEach(function (n) { n.setAttribute("transform", "translate(" + pan.toFixed(1) + ",0)"); });
+      if (!bar) return;
+      for (var i = 0; i < bar.children.length; i++) {
+        var s = bar.children[i], x = parseFloat(s.getAttribute("data-x"));
+        s.style.left = (s.className === "fixed" ? x : x - pan) + "px";
+      }
+    }
+
+    function setHint() {
+      if (!hint) return;
+      if (!panMode) { hint.textContent = deskHint; return; }
+      hint.textContent = (stIdx + 1) + "/" + stations.length + " · " + STATIONS[stIdx]
+        + (touched ? "" : tr(" · glissez", " · swipe"));
+    }
+
+    function stop() {
+      if (timer) { clearTimeout(timer); timer = 0; }
+      if (raf) { cancelAnimationFrame(raf); raf = 0; }
+    }
+
+    function glide(to, ms, then) {
+      var from = pan, t0 = 0;
+      (function frame(now) {
+        if (!t0) t0 = now || performance.now();
+        var k = Math.min(1, ((now || performance.now()) - t0) / ms);
+        var e = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+        pan = from + (to - from) * e;
+        applyPan();
+        if (k < 1) raf = requestAnimationFrame(frame);
+        else { raf = 0; if (then) then(); }
+      })(0);
+    }
+
+    function cycle() {
+      stop();
+      if (!panMode || reduceMotion || !inView || dragging || maxPan <= 0) return;
+      // l'étape des faits marquants contient beaucoup de texte : on y laisse plus de temps
+      timer = setTimeout(function () {
+        timer = 0;
+        var next = (stIdx + 1) % stations.length;
+        stIdx = next;
+        setHint();
+        hide();
+        glide(stations[next], next === 0 ? 900 : 700, cycle);
+      }, stIdx === stations.length - 1 ? 6500 : 4200);
+    }
+
+    function resumeLater(delay) {
+      stop();
+      if (!panMode || reduceMotion) return;
+      timer = setTimeout(function () {
+        timer = 0;
+        var best = 0;
+        stations.forEach(function (s, i) { if (Math.abs(s - pan) < Math.abs(stations[best] - pan)) best = i; });
+        stIdx = best;
+        setHint();
+        glide(stations[best], 400, cycle);
+      }, delay);
+    }
+
+    var dragX = 0, dragPan = 0, moved = 0;
+    svg.addEventListener("pointerdown", function (e) {
+      if (!panMode || maxPan <= 0) return;
+      dragging = true; moved = 0; dragX = e.clientX; dragPan = pan;
+      stop();
+      try { svg.setPointerCapture(e.pointerId); } catch (err) { /* sans capture, le glissement marche quand même */ }
+    });
+    svg.addEventListener("pointermove", function (e) {
+      if (!dragging) return;
+      var dx = e.clientX - dragX;
+      moved = Math.max(moved, Math.abs(dx));
+      pan = Math.max(0, Math.min(maxPan, dragPan - dx));
+      applyPan();
+      if (moved > 4 && !touched) { touched = true; setHint(); }
+      if (moved > 4) hide();
+    });
+    function endDrag(e) {
+      if (!dragging) return;
+      dragging = false;
+      if (moved <= 4 && geo && e.pointerType !== "mouse") {      // simple appui : lire une année
+        var r = svg.getBoundingClientRect();
+        var yv = (e.clientY - r.top) / r.height * geo.Hd;
+        if (yv > geo.head) show(Math.round((LOG.start + (yv - geo.head) / geo.ppy) * 8) / 8);
+      }
+      resumeLater(moved > 4 ? 2500 : 6000);
+    }
+    svg.addEventListener("pointerup", endDrag);
+    svg.addEventListener("pointercancel", endDrag);
+
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(function (entries) {
+        inView = entries[0].isIntersecting;
+        if (inView) cycle(); else stop();
+      }, { threshold: 0.12 }).observe(wrap);
+    } else {
+      inView = true;
     }
 
     // Niveau d'études : l'année universitaire commence en septembre ;
@@ -525,7 +660,7 @@
     }
 
     svg.addEventListener("pointermove", function (e) {
-      if (!geo) return;
+      if (!geo || dragging || e.pointerType === "touch") return;   // au doigt, l'infobulle vient d'un appui
       var r = svg.getBoundingClientRect();
       var yv = (e.clientY - r.top) / r.height * geo.Hd;
       if (yv < geo.head) { hide(); return; }
