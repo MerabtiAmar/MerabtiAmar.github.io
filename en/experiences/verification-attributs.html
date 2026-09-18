@@ -33,7 +33,7 @@
       <a href="../index.html#experiments">Experiments</a>
       <a href="../index.html#path">Path</a>
       <a href="../index.html#workshop">Workshop</a>
-      <a href="../bac-a-sable.html">Sandbox</a>
+      <a href="../sandbox.html">Sandbox</a>
       <a href="../index.html#looking-for">What I'm looking for</a>
       <a href="../index.html#contact">Contact</a>
     </nav>
@@ -67,18 +67,19 @@
       <aside class="margin"><span class="label">Why not an LLM judge?</span>I ruled it out for three reasons: it is not deterministic, it does not provide a threshold you can move, and it costs too much per verified value.</aside>
 
       <figure class="wide">
-        <div class="quiz" id="qc">
+        <div class="quiz" id="seuil">
           <div class="quiz-head">
-            <span class="tabs" id="qc-attr"></span>
-            <span class="score" id="qc-score" aria-live="polite"></span>
+            <span class="tabs" id="seuil-head"></span>
+            <span class="score"><label for="seuil-range">Threshold</label>
+              <input type="range" id="seuil-range" aria-label="Move the decision threshold"></span>
           </div>
-          <div class="quiz-body" id="qc-body"></div>
-          <div class="quiz-foot">
-            <span class="note" id="qc-note"></span>
-            <span class="quiz-controls"><button type="button" id="qc-next">Next listing</button></span>
+          <div class="quiz-body">
+            <svg id="seuil-chart" role="img" aria-label="Precision and recall against the share of values validated automatically"></svg>
+            <div class="seuil-stats" id="seuil-stats"></div>
           </div>
+          <div class="quiz-foot"><span class="note" id="seuil-note"></span></div>
         </div>
-        <figcaption class="fig-caption"><b>Fig. 1</b> — Real listings from the public bench (Amazon Berkeley Objects, CC BY 4.0), with the value an automatic extractor pulled out of them. Your call on whether it holds: that is exactly the decision the system has to make, thousands of times a day.</figcaption>
+        <figcaption class="fig-caption"><b>Fig. 1</b> — The threshold is the only knob at deployment time: to the left only the safe values are validated, to the right more values ship and more errors slip through. The marked point at 68% is the one kept in the thesis: beyond it, precision falls below 99%.</figcaption>
       </figure>
 
       <span class="step">02 · The reference</span>
@@ -239,7 +240,7 @@
     <span><a href="mailto:merabtiamar91@gmail.com">merabtiamar91@gmail.com</a></span>
   </div>
 </footer>
-<script src="../../assets/data/attributs.js"></script>
-<script src="../../assets/js/controle.js"></script>
+<script src="../../assets/data/seuil.js"></script>
+<script src="../../assets/js/seuil.js"></script>
 </body>
 </html>

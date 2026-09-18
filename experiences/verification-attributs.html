@@ -33,7 +33,7 @@
       <a href="../index.html#experiences">Expériences</a>
       <a href="../index.html#parcours">Parcours</a>
       <a href="../index.html#atelier">Atelier</a>
-      <a href="../bac-a-sable.html">Bac à sable</a>
+      <a href="../sandbox.html">Sandbox</a>
       <a href="../index.html#recherche">Ce que je cherche</a>
       <a href="../index.html#contact">Contact</a>
     </nav>
@@ -67,18 +67,19 @@
       <aside class="margin"><span class="label">Pourquoi pas un LLM juge&nbsp;?</span>Je l'ai écarté pour trois raisons : il n'est pas déterministe, il ne fournit pas de seuil que l'on peut déplacer, et il coûte trop cher par valeur vérifiée.</aside>
 
       <figure class="wide">
-        <div class="quiz" id="qc">
+        <div class="quiz" id="seuil">
           <div class="quiz-head">
-            <span class="tabs" id="qc-attr"></span>
-            <span class="score" id="qc-score" aria-live="polite"></span>
+            <span class="tabs" id="seuil-head"></span>
+            <span class="score"><label for="seuil-range">Seuil</label>
+              <input type="range" id="seuil-range" aria-label="Déplacer le seuil de décision"></span>
           </div>
-          <div class="quiz-body" id="qc-body"></div>
-          <div class="quiz-foot">
-            <span class="note" id="qc-note"></span>
-            <span class="quiz-controls"><button type="button" id="qc-next">Fiche suivante</button></span>
+          <div class="quiz-body">
+            <svg id="seuil-chart" role="img" aria-label="Courbe de précision et de rappel en fonction de la part de valeurs validées automatiquement"></svg>
+            <div class="seuil-stats" id="seuil-stats"></div>
           </div>
+          <div class="quiz-foot"><span class="note" id="seuil-note"></span></div>
         </div>
-        <figcaption class="fig-caption"><b>Fig. 1</b> — Des fiches réelles du banc public (Amazon Berkeley Objects, licence CC BY 4.0), avec la valeur qu'une extraction automatique en a tirée. À vous de dire si elle tient : c'est exactement la décision que le système doit prendre, des milliers de fois par jour.</figcaption>
+        <figcaption class="fig-caption"><b>Fig. 1</b> — Le seuil est le seul réglage de mise en production : à gauche on ne valide que les valeurs sûres, à droite on en livre davantage et on laisse passer plus d'erreurs. Le point marqué à 68 % est celui retenu dans le mémoire : au-delà, la précision descend sous 99 %.</figcaption>
       </figure>
 
       <span class="step">02 · La référence</span>
@@ -239,7 +240,7 @@
     <span><a href="mailto:merabtiamar91@gmail.com">merabtiamar91@gmail.com</a></span>
   </div>
 </footer>
-<script src="../assets/data/attributs.js"></script>
-<script src="../assets/js/controle.js"></script>
+<script src="../assets/data/seuil.js"></script>
+<script src="../assets/js/seuil.js"></script>
 </body>
 </html>

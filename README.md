@@ -7,7 +7,7 @@ Site statique en HTML, CSS et JavaScript, sans framework, sans étape de build e
 ```
 index.html                 carnet : expériences, parcours, atelier, ce que je cherche, contact
 experiences/               une page par expérience détaillée
-bac-a-sable.html           deux outils jouables : réseau de neurones et argumentation
+sandbox.html               deux outils jouables : réseau de neurones et argumentation
 en/                        version anglaise (mêmes pages)
 assets/css/site.css        styles (thème clair et sombre, polices auto-hébergées)
 assets/js/site.js          mode 30 secondes, filtres, tableau tactique, diagraphie du parcours (FR/EN selon la langue de la page)

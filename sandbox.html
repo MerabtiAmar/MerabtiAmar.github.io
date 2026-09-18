@@ -3,16 +3,16 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Bac à sable : un réseau à régler, un débat à trancher — Amar Merabti</title>
+  <title>Sandbox : un réseau à régler, un débat à trancher — Amar Merabti</title>
   <meta name="description" content="Deux outils de mes projets de cours, portés dans le navigateur : régler un réseau de neurones à seuil jusqu'à obtenir un XOR, et calculer les extensions d'un système d'argumentation de Dung.">
   <meta name="author" content="Amar Merabti">
-  <link rel="canonical" href="https://merabtiamar.github.io/bac-a-sable.html">
-  <link rel="alternate" hreflang="fr" href="https://merabtiamar.github.io/bac-a-sable.html">
-  <link rel="alternate" hreflang="en" href="https://merabtiamar.github.io/en/bac-a-sable.html">
+  <link rel="canonical" href="https://merabtiamar.github.io/sandbox.html">
+  <link rel="alternate" hreflang="fr" href="https://merabtiamar.github.io/sandbox.html">
+  <link rel="alternate" hreflang="en" href="https://merabtiamar.github.io/en/sandbox.html">
   <meta property="og:type" content="article">
-  <meta property="og:title" content="Bac à sable : un réseau à régler, un débat à trancher">
+  <meta property="og:title" content="Sandbox : un réseau à régler, un débat à trancher">
   <meta property="og:description" content="Deux outils de mes projets de cours, portés dans le navigateur : régler un réseau de neurones à seuil jusqu'à obtenir un XOR, et calculer les extensions d'un système d'argumentation de Dung.">
-  <meta property="og:url" content="https://merabtiamar.github.io/bac-a-sable.html">
+  <meta property="og:url" content="https://merabtiamar.github.io/sandbox.html">
   <meta property="og:locale" content="fr_FR">
   <meta property="og:site_name" content="Amar Merabti">
   <meta property="og:image" content="https://merabtiamar.github.io/assets/img/og-fr.png">
@@ -33,11 +33,11 @@
       <a href="index.html#experiences">Expériences</a>
       <a href="index.html#parcours">Parcours</a>
       <a href="index.html#atelier">Atelier</a>
-      <a href="bac-a-sable.html">Bac à sable</a>
+      <a href="sandbox.html">Sandbox</a>
       <a href="index.html#recherche">Ce que je cherche</a>
       <a href="index.html#contact">Contact</a>
     </nav>
-    <a class="lang" href="en/bac-a-sable.html" hreflang="en" lang="en" title="English version">EN</a>
+    <a class="lang" href="en/sandbox.html" hreflang="en" lang="en" title="English version">EN</a>
   </div>
 </header>
 
@@ -59,15 +59,12 @@
       <figure class="wide">
         <div class="quiz" id="nn">
           <div class="quiz-head">
-            <span class="tabs">
-              <button type="button" data-input="0"></button>
-              <button type="button" data-input="1"></button>
-            </span>
+            <span class="tabs" id="nn-inputs"></span>
             <span class="score nn-status" id="nn-status"></span>
           </div>
           <div class="quiz-body">
-            <svg id="nn-graph" role="img" aria-label="Réseau de neurones à deux entrées, deux neurones cachés et une sortie"></svg>
-            <div class="nn-grid" id="nn-controls"></div>
+            <svg id="nn-graph" role="img" aria-label="Réseau de neurones modifiable"></svg>
+            <div class="nn-panel" id="nn-panel"></div>
             <div class="nn-truth" id="nn-table"></div>
           </div>
           <div class="quiz-foot">
@@ -80,12 +77,16 @@
               </select>
             </span>
             <span class="quiz-controls">
-              <button type="button" id="nn-zero">Tout remettre à zéro</button>
-              <button type="button" id="nn-solve">Charger la solution</button>
+              <button type="button" id="nn-layer-add">Couche +</button>
+              <button type="button" id="nn-layer-del">Couche −</button>
+              <button type="button" id="nn-zero">Vider</button>
+              <button type="button" id="nn-solve">Charger le XOR</button>
+              <button type="button" id="nn-export">Exporter</button>
+              <label class="nn-file">Importer<input type="file" id="nn-import" accept="application/json,.json"></label>
             </span>
           </div>
         </div>
-        <figcaption class="fig-caption"><b>Fig. 1</b> — Les poids et les biais se règlent par pas de 0,5. Les quatre lignes de la table de vérité sont recalculées à chaque changement&nbsp;; cliquez une ligne pour envoyer ces entrées dans le réseau. « Charger la solution » reprend le fichier <code>examples/xor.json</code> du dépôt.</figcaption>
+        <figcaption class="fig-caption"><b>Fig. 1</b> — Ajoutez des couches et des neurones, reliez-les en touchant deux neurones de couches différentes, réglez poids et biais : la propagation avant est recalculée à chaque geste. « Charger le XOR » reprend le fichier <code>examples/xor.json</code> du dépôt, et l'export produit le même format, relisible par l'application Tkinter d'origine.</figcaption>
       </figure>
 
       <span class="step">02 · Argumentation</span>

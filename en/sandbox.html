@@ -6,13 +6,13 @@
   <title>Sandbox: a network to tune, a debate to settle — Amar Merabti</title>
   <meta name="description" content="Two tools from my course projects, ported to the browser: tune a threshold neural network until it computes a XOR, and compute the extensions of a Dung argumentation framework.">
   <meta name="author" content="Amar Merabti">
-  <link rel="canonical" href="https://merabtiamar.github.io/en/bac-a-sable.html">
-  <link rel="alternate" hreflang="fr" href="https://merabtiamar.github.io/bac-a-sable.html">
-  <link rel="alternate" hreflang="en" href="https://merabtiamar.github.io/en/bac-a-sable.html">
+  <link rel="canonical" href="https://merabtiamar.github.io/en/sandbox.html">
+  <link rel="alternate" hreflang="fr" href="https://merabtiamar.github.io/sandbox.html">
+  <link rel="alternate" hreflang="en" href="https://merabtiamar.github.io/en/sandbox.html">
   <meta property="og:type" content="article">
   <meta property="og:title" content="Sandbox: a network to tune, a debate to settle">
   <meta property="og:description" content="Two tools from my course projects, ported to the browser: tune a threshold neural network until it computes a XOR, and compute the extensions of a Dung argumentation framework.">
-  <meta property="og:url" content="https://merabtiamar.github.io/en/bac-a-sable.html">
+  <meta property="og:url" content="https://merabtiamar.github.io/en/sandbox.html">
   <meta property="og:locale" content="en_GB">
   <meta property="og:site_name" content="Amar Merabti">
   <meta property="og:image" content="https://merabtiamar.github.io/assets/img/og-en.png">
@@ -33,11 +33,11 @@
       <a href="../index.html#experiences">Experiments</a>
       <a href="../index.html#parcours">Path</a>
       <a href="../index.html#atelier">Workshop</a>
-      <a href="../bac-a-sable.html">Sandbox</a>
+      <a href="../sandbox.html">Sandbox</a>
       <a href="../index.html#recherche">What I'm looking for</a>
       <a href="../index.html#contact">Contact</a>
     </nav>
-    <a class="lang" href="../bac-a-sable.html" hreflang="fr" lang="fr" title="Version française">FR</a>
+    <a class="lang" href="../sandbox.html" hreflang="fr" lang="fr" title="Version française">FR</a>
   </div>
 </header>
 
@@ -59,15 +59,12 @@
       <figure class="wide">
         <div class="quiz" id="nn">
           <div class="quiz-head">
-            <span class="tabs">
-              <button type="button" data-input="0"></button>
-              <button type="button" data-input="1"></button>
-            </span>
+            <span class="tabs" id="nn-inputs"></span>
             <span class="score nn-status" id="nn-status"></span>
           </div>
           <div class="quiz-body">
-            <svg id="nn-graph" role="img" aria-label="Neural network with two inputs, two hidden neurons and one output"></svg>
-            <div class="nn-grid" id="nn-controls"></div>
+            <svg id="nn-graph" role="img" aria-label="Editable neural network"></svg>
+            <div class="nn-panel" id="nn-panel"></div>
             <div class="nn-truth" id="nn-table"></div>
           </div>
           <div class="quiz-foot">
@@ -80,12 +77,16 @@
               </select>
             </span>
             <span class="quiz-controls">
-              <button type="button" id="nn-zero">Reset to zero</button>
-              <button type="button" id="nn-solve">Load the solution</button>
+              <button type="button" id="nn-layer-add">Layer +</button>
+              <button type="button" id="nn-layer-del">Layer −</button>
+              <button type="button" id="nn-zero">Clear</button>
+              <button type="button" id="nn-solve">Load the XOR</button>
+              <button type="button" id="nn-export">Export</button>
+              <label class="nn-file">Import<input type="file" id="nn-import" accept="application/json,.json"></label>
             </span>
           </div>
         </div>
-        <figcaption class="fig-caption"><b>Fig. 1</b> — Weights and biases move in steps of 0.5. The four rows of the truth table are recomputed on every change; click a row to send those inputs through the network. “Load the solution” uses the <code>examples/xor.json</code> file from the repository.</figcaption>
+        <figcaption class="fig-caption"><b>Fig. 1</b> — Add layers and neurons, connect them by tapping two neurons in different layers, set weights and biases: the forward pass is recomputed on every move. “Load the XOR” uses the <code>examples/xor.json</code> file from the repository, and the export writes the same format, which the original Tkinter application can read back.</figcaption>
       </figure>
 
       <span class="step">02 · Argumentation</span>
