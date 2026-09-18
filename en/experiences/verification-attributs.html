@@ -65,6 +65,21 @@
       <p>The task is not to compare a prediction with the truth, but <strong>to arbitrate between two unreliable sources</strong>.</p>
       <aside class="margin"><span class="label">Why not an LLM judge?</span>I ruled it out for three reasons: it is not deterministic, it does not provide a threshold you can move, and it costs too much per verified value.</aside>
 
+      <figure class="wide">
+        <div class="quiz" id="qc">
+          <div class="quiz-head">
+            <span class="tabs" id="qc-attr"></span>
+            <span class="score" id="qc-score" aria-live="polite"></span>
+          </div>
+          <div class="quiz-body" id="qc-body"></div>
+          <div class="quiz-foot">
+            <span class="note" id="qc-note"></span>
+            <span class="quiz-controls"><button type="button" id="qc-next">Next listing</button></span>
+          </div>
+        </div>
+        <figcaption class="fig-caption"><b>Fig. 1</b> — Real listings from the public bench (Amazon Berkeley Objects, CC BY 4.0), with the value an automatic extractor pulled out of them. Your call on whether it holds: that is exactly the decision the system has to make, thousands of times a day.</figcaption>
+      </figure>
+
       <span class="step">02 · The reference</span>
       <h2>Building a ground truth without annotating anything</h2>
       <ul>
@@ -173,7 +188,7 @@
 </div>
 </div>
 <!--/CHART:nricher-->
-        <figcaption class="fig-caption"><b>Fig. 1</b> — Mean balanced accuracy over the 35 attributes. The three trained models that receive the inference scores come first; TabPFN with only those 5 features stays within 2 points of the best model, which uses 55.</figcaption>
+        <figcaption class="fig-caption"><b>Fig. 2</b> — Mean balanced accuracy over the 35 attributes. The three trained models that receive the inference scores come first; TabPFN with only those 5 features stays within 2 points of the best model, which uses 55.</figcaption>
       </figure>
       <p>The paired ablation (Wilcoxon test) is clear: removing the 4 inference scores costs <strong>8.9 points</strong>, removing the 50 embedding components costs only <strong>1.9</strong>. Four numbers computed against the value to check are worth more than fifty components computed blindly: what matters is how the text representation is oriented, not how rich it is. The standard deviation across attributes also drops from 0.128 to 0.079: the model is both better and steadier.</p>
       <p>TabSTAR let me test the opposite: a model pretrained on 350 real datasets, with a trainable text encoder, that reads the raw description. On its own it does worse than the inference rule (0.742). With the scores it gains 15.6 points (0.898) but stays behind TabPFN, while taking about 28 times longer (116 s per run, on GPU).</p>
@@ -223,5 +238,7 @@
     <span><a href="mailto:merabtiamar91@gmail.com">merabtiamar91@gmail.com</a></span>
   </div>
 </footer>
+<script src="../../assets/data/attributs.js"></script>
+<script src="../../assets/js/controle.js"></script>
 </body>
 </html>

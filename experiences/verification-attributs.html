@@ -65,6 +65,21 @@
       <p>Il ne s'agit donc pas de comparer une prédiction à une vérité, mais <strong>d'arbitrer entre deux sources douteuses</strong>.</p>
       <aside class="margin"><span class="label">Pourquoi pas un LLM juge&nbsp;?</span>Je l'ai écarté pour trois raisons : il n'est pas déterministe, il ne fournit pas de seuil que l'on peut déplacer, et il coûte trop cher par valeur vérifiée.</aside>
 
+      <figure class="wide">
+        <div class="quiz" id="qc">
+          <div class="quiz-head">
+            <span class="tabs" id="qc-attr"></span>
+            <span class="score" id="qc-score" aria-live="polite"></span>
+          </div>
+          <div class="quiz-body" id="qc-body"></div>
+          <div class="quiz-foot">
+            <span class="note" id="qc-note"></span>
+            <span class="quiz-controls"><button type="button" id="qc-next">Fiche suivante</button></span>
+          </div>
+        </div>
+        <figcaption class="fig-caption"><b>Fig. 1</b> — Des fiches réelles du banc public (Amazon Berkeley Objects, licence CC BY 4.0), avec la valeur qu'une extraction automatique en a tirée. À vous de dire si elle tient : c'est exactement la décision que le système doit prendre, des milliers de fois par jour.</figcaption>
+      </figure>
+
       <span class="step">02 · La référence</span>
       <h2>Construire une vérité sans rien annoter</h2>
       <ul>
@@ -173,7 +188,7 @@
 </div>
 </div>
 <!--/CHART:nricher-->
-        <figcaption class="fig-caption"><b>Fig. 1</b> — Exactitude équilibrée moyenne sur les 35 attributs. Les trois modèles appris qui reçoivent les scores d'inférence arrivent en tête ; TabPFN avec ces 5 variables seulement reste à moins de 2 points du meilleur modèle, qui en utilise 55.</figcaption>
+        <figcaption class="fig-caption"><b>Fig. 2</b> — Exactitude équilibrée moyenne sur les 35 attributs. Les trois modèles appris qui reçoivent les scores d'inférence arrivent en tête ; TabPFN avec ces 5 variables seulement reste à moins de 2 points du meilleur modèle, qui en utilise 55.</figcaption>
       </figure>
       <p>L'ablation appariée (test de Wilcoxon) tranche : retirer les 4 scores d'inférence coûte <strong>8,9 points</strong>, retirer les 50 composantes d'embedding n'en coûte que <strong>1,9</strong>. Quatre nombres calculés face à la valeur à vérifier valent plus que cinquante composantes calculées à l'aveugle : c'est l'orientation de la représentation du texte, pas sa richesse, qui décide. Au passage, l'écart-type entre attributs passe de 0,128 à 0,079 : le modèle est meilleur et plus régulier.</p>
       <p>TabSTAR permettait de tester l'inverse : un modèle pré-entraîné sur 350 jeux de données réels, avec un encodeur de texte entraînable, qui lit la description brute. Seul, il fait moins bien que la règle d'inférence (0,742). Avec les scores, il gagne 15,6 points (0,898) mais reste derrière TabPFN, pour un temps environ 28 fois plus long (116 s par exécution, sur GPU).</p>
@@ -223,5 +238,7 @@
     <span><a href="mailto:merabtiamar91@gmail.com">merabtiamar91@gmail.com</a></span>
   </div>
 </footer>
+<script src="../assets/data/attributs.js"></script>
+<script src="../assets/js/controle.js"></script>
 </body>
 </html>
