@@ -70,6 +70,25 @@
         </tbody>
       </table>
 
+      <figure class="wide">
+        <div class="quiz" id="quiz">
+          <div class="quiz-head">
+            <span class="tabs" role="group" aria-label="Épreuve">
+              <button type="button" data-test="gsm8k" aria-pressed="true">Maths</button>
+              <button type="button" data-test="hellaswag" aria-pressed="false">Sens commun</button>
+              <button type="button" data-test="humaneval" aria-pressed="false">Code</button>
+            </span>
+            <span class="score" id="quiz-score" aria-live="polite"></span>
+          </div>
+          <div class="quiz-body" id="quiz-body"></div>
+          <div class="quiz-foot">
+            <span class="note" id="quiz-note"></span>
+            <span class="quiz-controls"><button type="button" id="quiz-next">Question suivante</button></span>
+          </div>
+        </div>
+        <figcaption class="fig-caption"><b>Fig. 1</b> — Les questions viennent des jeux d'origine (GSM8K, HellaSwag et HumanEval, licence MIT) et les réponses affichées sont celles que les trois modèles ont réellement produites pendant mes exécutions : rien n'est rejoué ici. À vous de faire mieux.</figcaption>
+      </figure>
+
       <span class="step">02 · Les résultats</span>
       <h2>Aucun modèle ne gagne partout</h2>
       <figure class="chart wide">
@@ -92,7 +111,7 @@
 </div>
 </div>
 <!--/CHART:benchmark-->
-        <figcaption class="fig-caption"><b>Fig. 1</b> — Exactitude sur chaque épreuve, axe de 0 à 100 %. Le meilleur modèle de chaque épreuve est mis en évidence.</figcaption>
+        <figcaption class="fig-caption"><b>Fig. 2</b> — Exactitude sur chaque épreuve, axe de 0 à 100 %. Le meilleur modèle de chaque épreuve est mis en évidence.</figcaption>
       </figure>
       <p><strong>DeepSeek-R1</strong> domine le code avec 128 problèmes résolus sur 164. <strong>Mistral</strong> est le plus fort en sens commun et offre le meilleur compromis entre précision et temps de réponse. <strong>LLaMA 2</strong> reste loin derrière sur les trois épreuves.</p>
 
@@ -125,5 +144,7 @@
     <span><a href="mailto:merabtiamar91@gmail.com">merabtiamar91@gmail.com</a></span>
   </div>
 </footer>
+<script src="../assets/data/benchmark.js"></script>
+<script src="../assets/js/quiz.js"></script>
 </body>
 </html>

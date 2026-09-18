@@ -70,6 +70,25 @@
         </tbody>
       </table>
 
+      <figure class="wide">
+        <div class="quiz" id="quiz">
+          <div class="quiz-head">
+            <span class="tabs" role="group" aria-label="Task">
+              <button type="button" data-test="gsm8k" aria-pressed="true">Maths</button>
+              <button type="button" data-test="hellaswag" aria-pressed="false">Common sense</button>
+              <button type="button" data-test="humaneval" aria-pressed="false">Code</button>
+            </span>
+            <span class="score" id="quiz-score" aria-live="polite"></span>
+          </div>
+          <div class="quiz-body" id="quiz-body"></div>
+          <div class="quiz-foot">
+            <span class="note" id="quiz-note"></span>
+            <span class="quiz-controls"><button type="button" id="quiz-next">Next question</button></span>
+          </div>
+        </div>
+        <figcaption class="fig-caption"><b>Fig. 1</b> — The questions come from the original datasets (GSM8K, HellaSwag and HumanEval, MIT licence) and the answers shown are the ones the three models actually produced during my runs: nothing is replayed here. Your turn to do better.</figcaption>
+      </figure>
+
       <span class="step">02 · Results</span>
       <h2>No model wins everywhere</h2>
       <figure class="chart wide">
@@ -92,7 +111,7 @@
 </div>
 </div>
 <!--/CHART:benchmark-->
-        <figcaption class="fig-caption"><b>Fig. 1</b> — Accuracy on each test, axis from 0 to 100%. The best model on each test is highlighted.</figcaption>
+        <figcaption class="fig-caption"><b>Fig. 2</b> — Accuracy on each test, axis from 0 to 100%. The best model on each test is highlighted.</figcaption>
       </figure>
       <p><strong>DeepSeek-R1</strong> dominates coding with 128 problems solved out of 164. <strong>Mistral</strong> is the strongest at common sense and offers the best trade-off between accuracy and response time. <strong>LLaMA 2</strong> lags far behind on all three tests.</p>
 
@@ -125,5 +144,7 @@
     <span><a href="mailto:merabtiamar91@gmail.com">merabtiamar91@gmail.com</a></span>
   </div>
 </footer>
+<script src="../../assets/data/benchmark.js"></script>
+<script src="../../assets/js/quiz.js"></script>
 </body>
 </html>
