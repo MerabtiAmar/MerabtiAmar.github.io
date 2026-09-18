@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>What a Transformer actually does, head by head — Amar Merabti</title>
+  <meta name="description" content="A 105,000-parameter Transformer trained on in-context copying, then opened up: head ablations, attention signatures, and the induction circuit reproduced on a laptop in 2.3 minutes.">
+  <meta name="author" content="Amar Merabti">
+  <link rel="canonical" href="https://merabtiamar.github.io/en/experiences/transformer-induction.html">
+  <link rel="alternate" hreflang="fr" href="https://merabtiamar.github.io/experiences/transformer-induction.html">
+  <link rel="alternate" hreflang="en" href="https://merabtiamar.github.io/en/experiences/transformer-induction.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="What a Transformer actually does, head by head">
+  <meta property="og:description" content="Ablating a single head drops copying from 99.5% to 24.7%. The induction circuit, reproduced in 105,000 parameters.">
+  <meta property="og:url" content="https://merabtiamar.github.io/en/experiences/transformer-induction.html">
+  <meta property="og:locale" content="en_GB">
+  <meta property="og:site_name" content="Amar Merabti">
+  <meta property="og:image" content="https://merabtiamar.github.io/assets/img/og-en.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Amar Merabti, data scientist — available from October 2026">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="../../assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../../assets/css/site.css">
+</head>
+<body>
+<a class="skip" href="#contenu">Skip to content</a>
+
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="../../index.html">Amar Merabti <span>· notebook</span></a>
+    <nav class="nav" aria-label="Sections">
+      <a href="../../index.html#experiments">Experiments</a>
+      <a href="../../index.html#path">Path</a>
+      <a href="../../index.html#workshop">Workshop</a>
+      <a href="../../sandbox.html">Sandbox</a>
+      <a href="../../index.html#looking">What I'm looking for</a>
+      <a href="../../index.html#contact">Contact</a>
+    </nav>
+    <a class="lang" href="../../experiences/transformer-induction.html" hreflang="fr" lang="fr" title="Version française">FR</a>
+  </div>
+</header>
+
+<main id="contenu">
+  <section class="case-hero">
+    <div class="wrap">
+      <a class="back" href="../../index.html#exp-induction">← Back to the notebook</a>
+      <p class="label" style="margin-top:28px">Exp. 08 · 2026 · personal project</p>
+      <h1>What a Transformer actually does, head by head</h1>
+      <p class="question">Can you open a language model and show, head by head, how it gets there?</p>
+      <div class="facts-row">
+        <div><div class="num">105 152</div><div class="cap">parameters: two layers, two heads, a 33-token context</div></div>
+        <div><div class="num">99,7 %</div><div class="cap">of copyable positions predicted correctly</div></div>
+        <div><div class="num">5,5 %</div><div class="cap">what is left when both heads of the second layer are ablated</div></div>
+        <div><div class="num">2,3 min</div><div class="cap">of training on a laptop, with no GPU</div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <article class="article">
+      <span class="step">01 · The task</span>
+      <h2>A rule the model cannot memorise</h2>
+      <p>To observe a mechanism you need a task whose solution you know. This one fits in a sentence: draw a random sequence of letters, of a length itself drawn at random between four and twelve, and repeat it to the end of the sequence. The first occurrence is unpredictable; everything after it follows from the context, provided you find where the current letter already appeared and copy what came next.</p><p class="note"><span class="label">My first version was wrong</span>I had fixed the motif length at sixteen. A single-layer model then reached 100%: all it had to do was look sixteen positions back, a plain offset. The negative control controlled nothing. Drawing the period at random for every example removes that shortcut.</p>
+
+      <figure class="wide">
+        <div class="quiz" id="tt">
+          <div class="quiz-head">
+            <span class="tabs">
+              <label for="tt-seq">Sequence</label>
+              <input type="text" id="tt-seq" spellcheck="false" autocomplete="off" size="26">
+              <select id="tt-preset" aria-label="Examples">
+                <option value="aleatoire">random motif</option>
+                <option value="abc">abcabc…</option>
+                <option value="long">long motif</option>
+              </select>
+            </span>
+            <span class="score" id="tt-score" aria-live="polite"></span>
+          </div>
+          <div class="quiz-body">
+            <div class="tt-strip" id="tt-strip"></div>
+            <div class="tt-heads" id="tt-heads"></div>
+            <div class="tt-detail" id="tt-detail"></div>
+          </div>
+          <div class="quiz-foot"><span class="note" id="tt-note"></span></div>
+        </div>
+        <figcaption class="fig-caption"><b>Fig. 1</b> — The model runs in this page. Each cell shows the letter and, below it, what the model predicts next with its probability; tap one to see where each head looks. The “ablate” boxes switch a head off: ablate head 1 of layer 0 and watch copying collapse.</figcaption>
+      </figure>
+
+      <span class="step">02 · The emergence</span>
+      <h2>The ability appears all at once, and not with one layer</h2>
+      <p>Training takes 2.3 minutes on a laptop with no graphics card. Nothing happens for two hundred steps, then copying appears abruptly and saturates at <strong>99.7%</strong>. The same model deprived of one layer tops out at <strong>40.4%</strong>: in-context copying needs two stages, one to record where you come from, the other to fetch what follows — the circuit described by Elhage and colleagues in 2021, then by Olsson in 2022, reproduced here at toy scale.</p>
+      <figure class="wide">
+        <img src="../../assets/fig/induction-apparition.png" alt="Accuracy on copyable positions during training, two layers against one" width="1258" height="731" loading="lazy" style="max-width:640px">
+        <figcaption class="fig-caption"><b>Fig. 2</b> — Accuracy on positions whose continuation is readable from the context. The dashed line is chance (1/26).</figcaption>
+      </figure>
+
+      <span class="step">03 · The ablation</span>
+      <h2>Ablate one head, and the model can no longer copy</h2>
+      <p>The culprits can be named. Each head is switched off in turn — its output set to zero — and we measure what the model loses. We also measure where its attention goes: on the previous token, or on the positions that follow earlier occurrences of the current letter.</p>
+      <table>
+        <thead><tr><th>Ablated head</th><th style="text-align:right">Copying left</th><th style="text-align:right">Att. previous token</th><th style="text-align:right">Att. induction</th></tr></thead>
+        <tbody>
+          <tr><td>layer 0, head 1</td><td class="n">0,247</td><td class="n">0,91</td><td class="n">0,04</td></tr>
+          <tr><td>layer 0, head 0</td><td class="n">0,921</td><td class="n">0,03</td><td class="n">0,12</td></tr>
+          <tr class="best"><td>layer 1, head 0</td><td class="n">0,955</td><td class="n">0,00</td><td class="n">0,69</td></tr>
+          <tr class="best"><td>layer 1, head 1</td><td class="n">0,981</td><td class="n">0,00</td><td class="n">0,70</td></tr>
+          <tr><td>layer 1, both heads</td><td class="n">0,055</td><td class="n">—</td><td class="n">—</td></tr>
+        </tbody>
+      </table>
+      <p>The reading is unambiguous. <strong>Head 1 of layer 0 places 91% of its attention on the previous token</strong>: it is the one writing, into every position, the identity of the one before it. Ablating it drops copying from 99.5% to <strong>24.7%</strong>. The two heads of layer 1 put nearly 70% of their attention on the induction pattern — but ablating them one at a time costs almost nothing (−4 and −1.4 points): they duplicate each other. Ablated together, copying falls to <strong>5.5%</strong>. One function, two copies, and a preparatory stage without which nothing works.</p>
+
+      <span class="step">04 · A detail that is not one</span>
+      <h2>The model bets on the motif coming back</h2>
+      <p>On the so-called unpredictable positions, the model scores 14%, well above chance (3.8%). Looking closer, those 14% come from one place only: <strong>the motif boundary</strong>, the position where the repetition starts. There, the model is right <strong>93.9% of the time</strong>; everywhere else it is exactly at chance (3.8%).</p><p>So it learned a betting strategy: as long as no repetition has been detected, propose the first letter of the sequence. Wrong almost everywhere, and right precisely where it counts. A number that looked like noise was in fact describing a behaviour.</p><p>Finally, the model running in this page is the one that was trained: over six sequences and 192 positions, the largest gap between the JavaScript port and PyTorch is <strong>10⁻⁵</strong> on the logits and on the attention maps, ablation included, and no prediction differs.</p>
+
+      <nav class="next" aria-label="Next">
+        <a href="../../index.html#experiences">← All experiments</a>
+        <a href="https://github.com/MerabtiAmar/tiny-transformer-induction" rel="noopener">Code and model ↗</a>
+        <a href="../../sandbox.html">Sandbox →</a>
+      </nav>
+    </article>
+  </div>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <span>© 2026 Amar Merabti · text and photographs, all rights reserved</span>
+    <span><a href="mailto:merabtiamar91@gmail.com">merabtiamar91@gmail.com</a></span>
+  </div>
+</footer>
+<script src="../../assets/data/induction.js"></script>
+<script src="../../assets/js/induction.js"></script>
+<script src="../../assets/js/transformer.js"></script>
+</body>
+</html>

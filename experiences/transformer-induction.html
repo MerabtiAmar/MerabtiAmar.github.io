@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ce que fait vraiment un Transformer, tête par tête — Amar Merabti</title>
+  <meta name="description" content="Un Transformer de 105 000 paramètres entraîné sur une tâche de recopie en contexte, puis ouvert : ablation de chaque tête, signatures d'attention, et le circuit d'induction reproduit sur un portable en 2,3 minutes.">
+  <meta name="author" content="Amar Merabti">
+  <link rel="canonical" href="https://merabtiamar.github.io/experiences/transformer-induction.html">
+  <link rel="alternate" hreflang="fr" href="https://merabtiamar.github.io/experiences/transformer-induction.html">
+  <link rel="alternate" hreflang="en" href="https://merabtiamar.github.io/en/experiences/transformer-induction.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Ce que fait vraiment un Transformer, tête par tête">
+  <meta property="og:description" content="Couper une seule tête fait tomber la recopie de 99,5 % à 24,7 %. Le circuit d'induction, reproduit en 105 000 paramètres.">
+  <meta property="og:url" content="https://merabtiamar.github.io/experiences/transformer-induction.html">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:site_name" content="Amar Merabti">
+  <meta property="og:image" content="https://merabtiamar.github.io/assets/img/og-fr.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Amar Merabti, data scientist — disponible en octobre 2026">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/css/site.css">
+</head>
+<body>
+<a class="skip" href="#contenu">Aller au contenu</a>
+
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="../index.html">Amar Merabti <span>· carnet</span></a>
+    <nav class="nav" aria-label="Sections">
+      <a href="../index.html#experiences">Expériences</a>
+      <a href="../index.html#parcours">Parcours</a>
+      <a href="../index.html#atelier">Atelier</a>
+      <a href="../sandbox.html">Sandbox</a>
+      <a href="../index.html#recherche">Ce que je cherche</a>
+      <a href="../index.html#contact">Contact</a>
+    </nav>
+    <a class="lang" href="../en/experiences/transformer-induction.html" hreflang="en" lang="en" title="English version">EN</a>
+  </div>
+</header>
+
+<main id="contenu">
+  <section class="case-hero">
+    <div class="wrap">
+      <a class="back" href="../index.html#exp-induction">← Retour au carnet</a>
+      <p class="label" style="margin-top:28px">Exp. 08 · 2026 · projet personnel</p>
+      <h1>Ce que fait vraiment un Transformer, tête par tête</h1>
+      <p class="question">Peut-on ouvrir un modèle de langue et montrer, tête par tête, comment il s'y prend&nbsp;?</p>
+      <div class="facts-row">
+        <div><div class="num">105 152</div><div class="cap">paramètres : deux couches, deux têtes, contexte de 33 jetons</div></div>
+        <div><div class="num">99,7 %</div><div class="cap">des positions recopiables prédites correctement</div></div>
+        <div><div class="num">5,5 %</div><div class="cap">ce qu'il en reste quand on coupe les deux têtes de la seconde couche</div></div>
+        <div><div class="num">2,3 min</div><div class="cap">d'entraînement sur un portable, sans GPU</div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <article class="article">
+      <span class="step">01 · La tâche</span>
+      <h2>Une règle que le modèle ne peut pas mémoriser</h2>
+      <p>Pour observer un mécanisme, il faut une tâche dont on connaît la solution. Celle-ci tient en une phrase&nbsp;: on tire une suite de lettres au hasard, d'une longueur elle-même tirée au hasard entre quatre et douze, et on la répète jusqu'au bout de la séquence. La première occurrence est imprévisible&nbsp;; tout ce qui suit se déduit du contexte, à condition de retrouver où la lettre courante est déjà apparue et de recopier ce qui la suivait.</p><p class="note"><span class="label">Ma première version était fausse</span>J'avais d'abord fixé la longueur du motif à seize. Un modèle à une seule couche atteignait alors 100 %&nbsp;: il lui suffisait de regarder seize positions en arrière, un simple décalage. Le contrôle négatif ne contrôlait rien. Tirer la période au hasard à chaque exemple supprime ce raccourci.</p>
+
+      <figure class="wide">
+        <div class="quiz" id="tt">
+          <div class="quiz-head">
+            <span class="tabs">
+              <label for="tt-seq">Suite</label>
+              <input type="text" id="tt-seq" spellcheck="false" autocomplete="off" size="26">
+              <select id="tt-preset" aria-label="Exemples">
+                <option value="aleatoire">motif au hasard</option>
+                <option value="abc">abcabc…</option>
+                <option value="long">motif long</option>
+              </select>
+            </span>
+            <span class="score" id="tt-score" aria-live="polite"></span>
+          </div>
+          <div class="quiz-body">
+            <div class="tt-strip" id="tt-strip"></div>
+            <div class="tt-heads" id="tt-heads"></div>
+            <div class="tt-detail" id="tt-detail"></div>
+          </div>
+          <div class="quiz-foot"><span class="note" id="tt-note"></span></div>
+        </div>
+        <figcaption class="fig-caption"><b>Fig. 1</b> — Le modèle tourne dans cette page. Chaque case montre la lettre et, en dessous, ce que le modèle prédit ensuite, avec sa probabilité&nbsp;; touchez-en une pour voir où chaque tête regarde. Les cases « couper » désactivent une tête&nbsp;: coupez la tête 1 de la couche 0 et regardez la recopie s'effondrer.</figcaption>
+      </figure>
+
+      <span class="step">02 · L'apparition</span>
+      <h2>La capacité arrive d'un coup, et pas à une seule couche</h2>
+      <p>L'entraînement dure 2,3 minutes sur un portable sans carte graphique. Rien ne se passe pendant deux cents pas, puis la recopie apparaît brutalement et sature à <strong>99,7 %</strong>. Le même modèle privé d'une couche plafonne à <strong>40,4 %</strong>&nbsp;: la recopie en contexte demande deux étages, un pour marquer d'où l'on vient, l'autre pour aller chercher la suite — c'est le circuit décrit par Elhage et ses collègues en 2021, puis par Olsson en 2022, ici reproduit à l'échelle d'un jouet.</p>
+      <figure class="wide">
+        <img src="../assets/fig/induction-apparition.png" alt="Exactitude sur les positions recopiables au fil de l'entraînement, deux couches contre une" width="1258" height="731" loading="lazy" style="max-width:640px">
+        <figcaption class="fig-caption"><b>Fig. 2</b> — Exactitude sur les positions dont la suite est lisible dans le contexte. La ligne pointillée est le hasard (1/26).</figcaption>
+      </figure>
+
+      <span class="step">03 · L'ablation</span>
+      <h2>Une tête qu'on coupe, et le modèle ne sait plus recopier</h2>
+      <p>On peut désigner les coupables. Chaque tête est désactivée à son tour — sa sortie est mise à zéro — et l'on mesure ce que le modèle perd. On mesure aussi où va son attention&nbsp;: sur le jeton précédent, ou sur les positions qui suivent les occurrences antérieures de la lettre courante.</p>
+      <table>
+        <thead><tr><th>Tête coupée</th><th style="text-align:right">Recopie restante</th><th style="text-align:right">Att. jeton précédent</th><th style="text-align:right">Att. induction</th></tr></thead>
+        <tbody>
+          <tr><td>couche 0, tête 1</td><td class="n">0,247</td><td class="n">0,91</td><td class="n">0,04</td></tr>
+          <tr><td>couche 0, tête 0</td><td class="n">0,921</td><td class="n">0,03</td><td class="n">0,12</td></tr>
+          <tr class="best"><td>couche 1, tête 0</td><td class="n">0,955</td><td class="n">0,00</td><td class="n">0,69</td></tr>
+          <tr class="best"><td>couche 1, tête 1</td><td class="n">0,981</td><td class="n">0,00</td><td class="n">0,70</td></tr>
+          <tr><td>couche 1 entière</td><td class="n">0,055</td><td class="n">—</td><td class="n">—</td></tr>
+        </tbody>
+      </table>
+      <p>La lecture est nette. La <strong>tête 1 de la couche 0 place 91 % de son attention sur le jeton précédent</strong>&nbsp;: c'est elle qui inscrit, dans chaque position, l'identité de celle qui la précède. La couper fait tomber la recopie de 99,5 % à <strong>24,7 %</strong>. Les deux têtes de la couche 1, elles, portent près de 70 % de leur attention sur le motif d'induction — mais les couper une par une ne coûte presque rien (−4 et −1,4 points)&nbsp;: elles se doublonnent. Coupées ensemble, la recopie tombe à <strong>5,5 %</strong>. Autrement dit&nbsp;: une fonction, deux exemplaires, et un étage préparatoire sans lequel rien ne marche.</p>
+
+      <span class="step">04 · Un détail qui n'en est pas un</span>
+      <h2>Le modèle parie sur le retour du motif</h2>
+      <p>Sur les positions dites imprévisibles, le modèle obtient 14 % de réussite, bien au-dessus du hasard (3,8 %). En regardant de plus près, ces 14 % viennent d'un seul endroit&nbsp;: <strong>la frontière du motif</strong>, la position où la répétition commence. Là, le modèle a raison <strong>93,9 % du temps</strong>&nbsp;; partout ailleurs, il est exactement au hasard (3,8 %).</p><p>Il a donc appris une stratégie de pari&nbsp;: tant qu'aucune répétition n'a été détectée, proposer la première lettre de la suite. C'est faux presque partout, et juste précisément là où ça compte. Un chiffre qui ressemblait à du bruit décrivait en fait un comportement.</p><p>Enfin, le modèle exécuté dans cette page est bien celui qui a été entraîné&nbsp;: sur six séquences et 192 positions, l'écart maximal entre le portage JavaScript et PyTorch est de <strong>10⁻⁵</strong> sur les logits comme sur les cartes d'attention, y compris après ablation, et aucune prédiction ne diffère.</p>
+
+      <nav class="next" aria-label="Suite">
+        <a href="../index.html#experiences">← Toutes les expériences</a>
+        <a href="https://github.com/MerabtiAmar/tiny-transformer-induction" rel="noopener">Code et modèle ↗</a>
+        <a href="../sandbox.html">Sandbox →</a>
+      </nav>
+    </article>
+  </div>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <span>© 2026 Amar Merabti · textes et photos tous droits réservés</span>
+    <span><a href="mailto:merabtiamar91@gmail.com">merabtiamar91@gmail.com</a></span>
+  </div>
+</footer>
+<script src="../assets/data/induction.js"></script>
+<script src="../assets/js/induction.js"></script>
+<script src="../assets/js/transformer.js"></script>
+</body>
+</html>

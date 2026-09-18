@@ -159,7 +159,7 @@
     <div class="sec-head">
       <span class="label">§ 1</span>
       <div>
-        <h2 id="e-title">Sept expériences</h2>
+        <h2 id="e-title">Huit expériences</h2>
         <p>Chaque projet part d'une question. Je note ce que j'ai fait, ce que j'ai mesuré, et ce qui n'a pas marché : c'est souvent là que j'ai le plus appris.</p>
       </div>
     </div>
@@ -290,6 +290,23 @@
           <div class="keynum">99 %</div>
           <div class="keycap">de la performance finale atteinte avec 16 % des étiquettes, contre 96 % pour un tirage au hasard de même taille</div>
           <img src="assets/fig/annotation-courbes.png" alt="Courbes d'exactitude des cinq stratégies de sélection" loading="lazy">
+        </div>
+      </li>
+      <li class="exp" id="exp-induction">
+        <div class="exp-margin">
+          <div class="kicker">Exp. 08</div>
+          <div class="meta">2026<br>projet personnel</div>
+        </div>
+        <div class="exp-body">
+          <h3>Peut-on ouvrir un Transformer et montrer, tête par tête, comment il s'y prend&nbsp;?</h3>
+          <p>Un modèle de 105 000 paramètres — deux couches, deux têtes — entraîné en 2,3 minutes sur un portable à retrouver dans son contexte ce qu'il doit écrire, puis disséqué : ablation de chaque tête, signature de son attention, mesure de ce qu'elle apportait. Le modèle tourne dans la page, avec un interrupteur par tête.</p>
+          <p class="note"><span class="label">Ce qui n'a pas marché</span>Ma première version de la tâche gardait un motif de longueur fixe : un modèle à une seule couche la résolvait à 100 % par simple décalage, et mon contrôle négatif ne contrôlait rien. Période tirée au hasard, il retombe à 40 %.</p>
+          <div class="exp-links"><a href="experiences/transformer-induction.html">Lire l'expérience →</a><a href="https://github.com/MerabtiAmar/tiny-transformer-induction" rel="noopener">Code et modèle ↗</a></div>
+        </div>
+        <div class="exp-aside">
+          <div class="keynum">24,7 %</div>
+          <div class="keycap">ce qu'il reste de la recopie quand on coupe la seule tête « jeton précédent » — 99,5 % avant, 5,5 % si l'on coupe aussi la couche d'induction</div>
+          <img src="assets/fig/induction-apparition.png" alt="Apparition de la recopie en contexte au fil de l'entraînement" loading="lazy">
         </div>
       </li>
     </ol>

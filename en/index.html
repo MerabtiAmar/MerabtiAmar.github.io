@@ -159,7 +159,7 @@
     <div class="sec-head">
       <span class="label">§ 1</span>
       <div>
-        <h2 id="e-title">Seven experiments</h2>
+        <h2 id="e-title">Eight experiments</h2>
         <p>Each project starts from a question. I write down what I did, what I measured, and what did not work: that is often where I learned the most.</p>
       </div>
     </div>
@@ -290,6 +290,23 @@
           <div class="keynum">99 %</div>
           <div class="keycap">of the final accuracy reached with 16% of the labels, against 96% for random sampling of the same size</div>
           <img src="../assets/fig/annotation-courbes.png" alt="Accuracy curves of the five selection strategies" loading="lazy">
+        </div>
+      </li>
+      <li class="exp" id="exp-induction">
+        <div class="exp-margin">
+          <div class="kicker">Exp. 08</div>
+          <div class="meta">2026<br>personal project</div>
+        </div>
+        <div class="exp-body">
+          <h3>Can you open a Transformer and show, head by head, how it gets there?</h3>
+          <p>A 105,000-parameter model — two layers, two heads — trained in 2.3 minutes on a laptop to find in its context what it should write next, then dissected: each head ablated, its attention signature measured, its contribution quantified. The model runs in the page, with a switch per head.</p>
+          <p class="note"><span class="label">What did not work</span>My first version of the task kept a fixed motif length: a single-layer model solved it at 100% by plain offset, and my negative control controlled nothing. With a random period it falls back to 40%.</p>
+          <div class="exp-links"><a href="experiences/transformer-induction.html">Read the experiment →</a><a href="https://github.com/MerabtiAmar/tiny-transformer-induction" rel="noopener">Code and model ↗</a></div>
+        </div>
+        <div class="exp-aside">
+          <div class="keynum">24.7%</div>
+          <div class="keycap">of the copying left when the single “previous token” head is ablated — 99.5% before, 5.5% if the induction layer goes too</div>
+          <img src="../assets/fig/induction-apparition.png" alt="Emergence of in-context copying during training" loading="lazy">
         </div>
       </li>
     </ol>

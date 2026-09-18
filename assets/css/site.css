@@ -582,6 +582,28 @@ details.plain summary { cursor: pointer; font-family: var(--mono); font-size: 14
 #al-chart { width: 100%; height: auto; }
 @media (max-width: 620px) { .al-grid { grid-template-columns: 1fr; } }
 
+.tt-strip { display: flex; flex-wrap: wrap; gap: 3px; margin-bottom: 14px; }
+.tt-cell { display: grid; gap: 1px; justify-items: center; padding: 3px 2px; border: 1px solid transparent; border-radius: 2px; cursor: pointer; min-width: 22px; }
+.tt-cell:hover { border-color: var(--rule-strong); }
+.tt-cell.sel { border-color: var(--accent); background: var(--accent-wash); }
+.tt-tok { font-family: var(--mono); font-size: 14px; color: var(--ink); }
+.tt-pred { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+.tt-pred.ok { color: var(--ok); }
+.tt-pred.ko { color: var(--accent); }
+.tt-bar { display: block; width: 18px; height: 3px; background: var(--rule); }
+.tt-bar i { display: block; height: 3px; background: var(--ink-2); }
+.tt-heads { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 12px; }
+.tt-head-top { display: flex; justify-content: space-between; align-items: center; gap: 6px; font-family: var(--mono); font-size: 11px; color: var(--muted); margin-bottom: 3px; }
+.tt-off { cursor: pointer; }
+.tt-off input { margin-right: 3px; }
+.tt-map { width: 100%; height: auto; border: 1px solid var(--rule); background: var(--paper); cursor: pointer; }
+.tt-detail { font-family: var(--mono); font-size: 12.5px; color: var(--ink-2); display: grid; gap: 3px; }
+.tt-hint { margin: 0; color: var(--muted); font-family: var(--serif); font-size: 14.5px; }
+.tt-look { display: grid; grid-template-columns: 6em minmax(0, 1fr) 9em; gap: 10px; }
+.tt-look .kind { color: var(--accent); }
+.quiz input[type="text"] { font-family: var(--mono); font-size: 13px; padding: 4px 8px; background: var(--paper); color: var(--ink); border: 1px solid var(--rule-strong); border-radius: 2px; }
+@media (max-width: 700px) { .tt-heads { grid-template-columns: repeat(2, minmax(0, 1fr)); } .tt-look { grid-template-columns: 5em minmax(0, 1fr); } }
+
 @media print {
   .topbar, .modes, .board-controls, .filters { display: none !important; }
   body { background: #fff; }
