@@ -79,10 +79,10 @@
           <canvas id="board" width="904" height="608" role="img" aria-label="2D football match played live in the page: a single neural network controls both players"></canvas>
           <div class="board-foot">
             <span class="legend"><span><i class="k-att"></i>player 1</span><span><i class="k-def"></i>player 2</span><span><i class="k-ball"></i>ball</span></span>
-            <span class="board-controls"><button type="button" id="board-play">Pause</button><button type="button" id="board-next">Next match</button></span>
+            <span class="hint" id="board-hint"></span><span class="board-controls"><button type="button" id="board-play">Pause</button><button type="button" id="board-next">Next match</button></span>
           </div>
         </div>
-        <figcaption class="fig-caption"><b>Fig. 1</b> — These matches are not recordings: the final policy (86,000 parameters, 225 KB) runs in your browser and decides for both players, ten times per second. Each player defends the goal in their own colour: player 1 attacks the right-hand goal, player 2 the left-hand one; 20 seconds without a goal is a draw.</figcaption>
+        <figcaption class="fig-caption"><b>Fig. 1</b> — These matches are not recordings: the final policy (86,000 parameters, 225 KB) runs in your browser and decides for both players, ten times per second. Each player defends the goal in their own colour: player 1 attacks the right-hand goal, player 2 the left-hand one; 20 seconds without a goal is a draw. Move the players or the ball to try out a situation: the match restarts from there.</figcaption>
       </figure>
       <aside class="margin"><span class="label">Why the 12 m/s rule</span>Without it, both players learned to camp in their own goal: standing on the line, a player catches every shot passing within 1.6 m, and the draw becomes an equilibrium. Checked against a hand-coded goalkeeper: the scripted player beat it only 48.8% of the time, versus 78.6% once the rule was in place.</aside>
 

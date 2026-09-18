@@ -144,10 +144,10 @@
         <canvas id="board" width="904" height="608" role="img" aria-label="2D football match played live in the page: a single neural network controls both players"></canvas>
         <div class="board-foot">
           <span class="legend"><span><i class="k-att"></i>player 1</span><span><i class="k-def"></i>player 2</span><span><i class="k-ball"></i>ball</span></span>
-          <span class="board-controls"><button type="button" id="board-play">Pause</button><button type="button" id="board-next">Next match</button></span>
+          <span class="hint" id="board-hint"></span><span class="board-controls"><button type="button" id="board-play">Pause</button><button type="button" id="board-next">Next match</button></span>
         </div>
       </div>
-      <figcaption class="fig-caption"><b>Fig. 1</b> — No game rules are coded: both players are a single PPO policy trained against itself, 36 million steps in 48 minutes on a laptop. Nothing is pre-recorded: the network plays right here, in your browser, ten decisions per second per player. <a href="experiences/football-quadrupede.html">See the experiment</a></figcaption>
+      <figcaption class="fig-caption"><b>Fig. 1</b> — No game rules are coded: both players are a single PPO policy trained against itself, 36 million steps in 48 minutes on a laptop. Nothing is pre-recorded: the network plays right here, in your browser, ten decisions per second per player. Move the players or the ball: the match restarts from the position you set. <a href="experiences/football-quadrupede.html">See the experiment</a></figcaption>
     </figure>
   </div>
 </section>

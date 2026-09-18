@@ -309,10 +309,39 @@
             st.ball[0], st.ball[1], st.poss];
   }
 
+  /* Position de départ imposée (le visiteur place lui-même les joueurs et le ballon) :
+     tout est ramené dans le terrain, les joueurs sont écartés s'ils se chevauchent, et le
+     ballon posé au contact d'un joueur lui est donné, comme après un contrôle. */
+  function stateFrom(layout) {
+    function inside(p, m) {
+      return [clip(p[0], -C.xMax + m, C.xMax - m), clip(p[1], -C.yMax + m, C.yMax - m)];
+    }
+    var p0 = inside(layout.p1, C.radius), p1 = inside(layout.p2, C.radius);
+    var dx = p1[0] - p0[0], dy = p1[1] - p0[1], d = Math.hypot(dx, dy), minD = 2.05 * C.radius;
+    if (d < minD) {
+      var nx = d > 1e-6 ? dx / d : 1, ny = d > 1e-6 ? dy / d : 0, push = (minD - d) / 2;
+      p0 = inside([p0[0] - nx * push, p0[1] - ny * push], C.radius);
+      p1 = inside([p1[0] + nx * push, p1[1] + ny * push], C.radius);
+    }
+    var ball = inside(layout.ball, C.inset + 0.2);
+    var st = {
+      pos: [p0, p1], vel: [[0, 0], [0, 0]], ball: ball, bvel: [0, 0],
+      poss: -1, lastTouch: -1, kicker: -1, kickTimer: 0, grace: 0,
+      restartTimer: 0, restartOwner: -1, stepCount: 0, outcome: PLAYING, spawn: 3
+    };
+    var d0 = Math.hypot(ball[0] - p0[0], ball[1] - p0[1]);
+    var d1 = Math.hypot(ball[0] - p1[0], ball[1] - p1[1]);
+    if (Math.min(d0, d1) <= C.possR) {
+      var owner = d0 <= d1 ? 0 : 1;
+      st.poss = owner; st.lastTouch = owner; st.grace = C.graceSteps;
+    }
+    return st;
+  }
+
   /* ---------- un match, joué un pas à la fois ---------- */
-  function Match(rand) {
+  function Match(rand, layout) {
     this.rand = rand || Math.random;
-    this.state = newState(this.rand);
+    this.state = layout ? stateFrom(layout) : newState(this.rand);
     this.frames = [frame(this.state)];
     this.outcome = null;
     this.spawn = this.state.spawn;
@@ -335,7 +364,7 @@
     init: init,
     ready: function () { return !!net; },
     config: C,
-    match: function (rand) { return new Match(rand); },
+    match: function (rand, layout) { return new Match(rand, layout); },
     _internals: { newState: newState, step: step, decide: decide, observe: observe, frame: frame }
   };
 });

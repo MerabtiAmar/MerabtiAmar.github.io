@@ -81,8 +81,13 @@
     var clockEl = document.getElementById("board-clock");
     var playBtn = document.getElementById("board-play");
     var nextBtn = document.getElementById("board-next");
+    var hintEl = document.getElementById("board-hint");
     var match = foot.match(), t = 0, hold = 0, goals1 = 0, goals2 = 0, draws = 0, counted = false;
     var playing = !reduceMotion, visible = true, last = 0, raf = 0, colors = {};
+    // placement libre : le visiteur pose les deux joueurs et le ballon, le match repart de là
+    var edit = null, grabbed = -1, selected = -1, frozen = false, touchUsed = false, tapStart = null;
+
+    function clamp(v, a, b) { return v < a ? a : (v > b ? b : v); }
 
     /* la simulation prend de l'avance sur l'affichage : un pas de jeu coûte moins de 0,3 ms,
        soit quelques pas par image, et le match n'est jamais écrit à l'avance */
@@ -145,20 +150,45 @@
       ctx.stroke();
     }
 
+    /* Repères du placement : l'élément saisi, et le joueur qui partira avec le ballon */
+    function marks(s) {
+      var act = grabbed >= 0 ? grabbed : selected;
+      var d0 = Math.hypot(s[4] - s[0], s[5] - s[1]), d1 = Math.hypot(s[4] - s[2], s[5] - s[3]);
+      var near = Math.min(d0, d1) <= C.possR ? (d0 <= d1 ? 0 : 1) : -1;
+      ctx.save();
+      if (near >= 0) {
+        ctx.setLineDash([ts(0.7), ts(0.7)]);
+        ctx.lineWidth = Math.max(1, ts(0.3));
+        ctx.strokeStyle = near === 0 ? colors.accent : colors.ink;
+        ctx.beginPath(); ctx.arc(tx(s[near * 2]), ty(s[near * 2 + 1]), ts(3.2), 0, Math.PI * 2); ctx.stroke();
+        ctx.setLineDash([]);
+      }
+      if (act >= 0) {
+        ctx.strokeStyle = colors.accent; ctx.lineWidth = Math.max(1.5, ts(0.42));
+        ctx.beginPath(); ctx.arc(tx(s[act * 2]), ty(s[act * 2 + 1]), ts(act === 2 ? 2.3 : 3.6), 0, Math.PI * 2); ctx.stroke();
+      }
+      ctx.restore();
+    }
+
     function draw() {
       if (!colors.ink) readColors();
       var frames = match.frames;
       var f = Math.min(t / dt, frames.length - 1);
       pitch();
-      if (!playing && reduceMotion && t === 0) f = frames.length - 1; // image fixe : trajectoire complète
+      if (!playing && reduceMotion && t === 0 && !edit) f = frames.length - 1; // image fixe : trajectoire complète
       updateClock();
-      var s = lerpFrame(frames, f);
+      var s = edit ? [edit.p1[0], edit.p1[1], edit.p2[0], edit.p2[1], edit.ball[0], edit.ball[1], -1]
+                   : lerpFrame(frames, f);
       ctx.lineCap = "round"; ctx.lineJoin = "round";
-      ctx.globalAlpha = 0.35; ctx.lineWidth = Math.max(1, ts(0.35));
-      ctx.strokeStyle = colors.accent; trail(frames, f, 0);
-      ctx.strokeStyle = colors.ink; trail(frames, f, 2);
-      ctx.globalAlpha = 0.7; ctx.setLineDash([ts(0.6), ts(0.9)]); trail(frames, f, 4); ctx.setLineDash([]);
-      ctx.globalAlpha = 1;
+      if (edit) {
+        marks(s);
+      } else {
+        ctx.globalAlpha = 0.35; ctx.lineWidth = Math.max(1, ts(0.35));
+        ctx.strokeStyle = colors.accent; trail(frames, f, 0);
+        ctx.strokeStyle = colors.ink; trail(frames, f, 2);
+        ctx.globalAlpha = 0.7; ctx.setLineDash([ts(0.6), ts(0.9)]); trail(frames, f, 4); ctx.setLineDash([]);
+        ctx.globalAlpha = 1;
+      }
       var r = ts(2.1);
       ctx.fillStyle = colors.accent;
       ctx.beginPath(); ctx.arc(tx(s[0]), ty(s[1]), r, 0, Math.PI * 2); ctx.fill();
@@ -196,7 +226,7 @@
 
     function step(now) {
       raf = 0;
-      if (!playing || !visible) return;
+      if (!playing || !visible || frozen) return;
       var elapsed = last ? Math.min((now - last) / 1000, 0.1) : 0;
       last = now;
       ensure(t + 1.0);
@@ -221,13 +251,117 @@
 
     function nextMatch() {
       match = foot.match();
+      edit = null; grabbed = -1; selected = -1; frozen = false;
       t = 0; hold = 0; counted = false;
       if (flashEl) flashEl.textContent = "";
       if (reduceMotion && !playing) match.advance(C.maxSteps + 1); // image fixe : match complet
       else ensure(0.6);
+      setHint();
     }
 
+    /* ---------- Placement : chaque déplacement relance le match depuis la position posée ---------- */
+    function setHint() {
+      if (!hintEl) return;
+      if (grabbed >= 0) hintEl.textContent = tr("relâchez : le match repart", "release: the match restarts");
+      else if (selected >= 0) hintEl.textContent = tr("touchez l'endroit où le poser", "tap where to put it");
+      else if (touchUsed) hintEl.textContent = tr("touchez un élément, puis l'endroit", "tap an item, then the spot");
+      else hintEl.textContent = tr("placez les joueurs et le ballon", "place the players and the ball");
+    }
+
+    function metres(e) {
+      var r = canvas.getBoundingClientRect();
+      return [(e.clientX - r.left) / r.width * W - W / 2, H / 2 - (e.clientY - r.top) / r.height * H];
+    }
+
+    function shown() {
+      return edit ? [edit.p1[0], edit.p1[1], edit.p2[0], edit.p2[1], edit.ball[0], edit.ball[1]]
+                  : lerpFrame(match.frames, Math.min(t / dt, match.frames.length - 1));
+    }
+
+    function pick(m, touch) {
+      var s = shown(), best = -1, bestD = touch ? 5.5 : 3.4;
+      for (var k = 0; k < 3; k++) {
+        // le ballon est petit : on l'attrape d'un peu plus loin que les joueurs
+        var d = Math.hypot(m[0] - s[k * 2], m[1] - s[k * 2 + 1]) - (k === 2 ? 1.2 : 0);
+        if (d < bestD) { bestD = d; best = k; }
+      }
+      return best;
+    }
+
+    function startEdit() {
+      if (edit) return;
+      var s = shown();
+      edit = { p1: [s[0], s[1]], p2: [s[2], s[3]], ball: [s[4], s[5]] };
+      frozen = true; t = 0; hold = 0; counted = false;
+      if (flashEl) flashEl.textContent = "";
+    }
+
+    function moveTo(k, m) {
+      if (!edit) return;
+      var key = k === 0 ? "p1" : (k === 1 ? "p2" : "ball");
+      edit[key] = [clamp(m[0], -P.length / 2 + 1, P.length / 2 - 1),
+                   clamp(m[1], -P.width / 2 + 1, P.width / 2 - 1)];
+      draw();
+    }
+
+    function commitEdit() {
+      if (!edit) return;
+      match = foot.match(null, edit);
+      edit = null; grabbed = -1; selected = -1; frozen = false;
+      t = 0; hold = 0; counted = false;
+      ensure(0.6);
+      last = 0;
+      if (playing && !raf) raf = requestAnimationFrame(step);
+      setHint();
+      draw();
+    }
+
+    canvas.addEventListener("pointerdown", function (e) {
+      if (e.pointerType === "touch") {                 // au doigt : on appuie, puis on désigne l'endroit
+        if (!touchUsed) { touchUsed = true; setHint(); }
+        tapStart = { x: e.clientX, y: e.clientY, at: Date.now() };
+        return;
+      }
+      var k = pick(metres(e), false);
+      if (k < 0) return;
+      e.preventDefault();
+      startEdit();
+      grabbed = k;
+      canvas.className = "grabbing";
+      setHint();
+      moveTo(k, metres(e));
+      try { canvas.setPointerCapture(e.pointerId); } catch (err) { /* sans capture, ça marche quand même */ }
+    });
+
+    canvas.addEventListener("pointermove", function (e) {
+      if (grabbed >= 0) { moveTo(grabbed, metres(e)); return; }
+      if (e.pointerType === "touch") return;
+      canvas.className = pick(metres(e), false) >= 0 ? "grab" : "";
+    });
+
+    function release(e) {
+      if (grabbed >= 0) { canvas.className = ""; commitEdit(); return; }
+      if (e.pointerType !== "touch" || !tapStart) return;
+      var moved = Math.hypot(e.clientX - tapStart.x, e.clientY - tapStart.y);
+      var quick = Date.now() - tapStart.at < 800;
+      tapStart = null;
+      if (moved > 10 || !quick) return;                // c'était un défilement de la page
+      var m = metres(e);
+      if (selected < 0) {
+        var k = pick(m, true);
+        if (k < 0) return;
+        startEdit(); selected = k; setHint(); draw();
+      } else {
+        moveTo(selected, m);
+        commitEdit();
+      }
+    }
+    canvas.addEventListener("pointerup", release);
+    canvas.addEventListener("pointercancel", function (e) { tapStart = null; if (grabbed >= 0) { canvas.className = ""; commitEdit(); } });
+    canvas.addEventListener("pointerleave", function () { if (grabbed < 0) canvas.className = ""; });
+
     function setPlaying(p) {
+      if (p && edit) commitEdit();        // on lance depuis la position posée
       playing = p;
       if (playBtn) playBtn.textContent = p ? "Pause" : tr("Lecture", "Play");
       last = 0;
@@ -253,6 +387,7 @@
 
     readColors();
     updateScore();
+    setHint();
     if (reduceMotion && !playing) match.advance(C.maxSteps + 1); else ensure(0.6);
     resize();
     setPlaying(playing);

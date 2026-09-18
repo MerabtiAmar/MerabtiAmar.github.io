@@ -144,10 +144,10 @@
         <canvas id="board" width="904" height="608" role="img" aria-label="Match de football en 2D joué en direct dans la page : un même réseau de neurones contrôle les deux joueurs"></canvas>
         <div class="board-foot">
           <span class="legend"><span><i class="k-att"></i>joueur 1</span><span><i class="k-def"></i>joueur 2</span><span><i class="k-ball"></i>ballon</span></span>
-          <span class="board-controls"><button type="button" id="board-play">Pause</button><button type="button" id="board-next">Match suivant</button></span>
+          <span class="hint" id="board-hint"></span><span class="board-controls"><button type="button" id="board-play">Pause</button><button type="button" id="board-next">Match suivant</button></span>
         </div>
       </div>
-      <figcaption class="fig-caption"><b>Fig. 1</b> — Aucune règle de jeu n'est codée : les deux joueurs sont une seule politique PPO entraînée contre elle-même, 36 millions de pas en 48 minutes sur un portable. Rien n'est enregistré : le réseau joue ici, dans votre navigateur, dix décisions par seconde et par joueur. <a href="experiences/football-quadrupede.html">Voir l'expérience</a></figcaption>
+      <figcaption class="fig-caption"><b>Fig. 1</b> — Aucune règle de jeu n'est codée : les deux joueurs sont une seule politique PPO entraînée contre elle-même, 36 millions de pas en 48 minutes sur un portable. Rien n'est enregistré : le réseau joue ici, dans votre navigateur, dix décisions par seconde et par joueur. Déplacez les joueurs ou le ballon : le match repart de la position que vous posez. <a href="experiences/football-quadrupede.html">Voir l'expérience</a></figcaption>
     </figure>
   </div>
 </section>

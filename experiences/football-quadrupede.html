@@ -79,10 +79,10 @@
           <canvas id="board" width="904" height="608" role="img" aria-label="Match de football en 2D joué en direct dans la page : un même réseau de neurones contrôle les deux joueurs"></canvas>
           <div class="board-foot">
             <span class="legend"><span><i class="k-att"></i>joueur 1</span><span><i class="k-def"></i>joueur 2</span><span><i class="k-ball"></i>ballon</span></span>
-            <span class="board-controls"><button type="button" id="board-play">Pause</button><button type="button" id="board-next">Match suivant</button></span>
+            <span class="hint" id="board-hint"></span><span class="board-controls"><button type="button" id="board-play">Pause</button><button type="button" id="board-next">Match suivant</button></span>
           </div>
         </div>
-        <figcaption class="fig-caption"><b>Fig. 1</b> — Ces matchs ne sont pas des enregistrements : la politique finale (86 000 paramètres, 225 ko) est exécutée dans votre navigateur et décide pour les deux joueurs, dix fois par seconde. Chacun défend la cage de sa couleur : le joueur 1 attaque le but de droite, le joueur 2 celui de gauche ; 20 secondes sans but font un match nul.</figcaption>
+        <figcaption class="fig-caption"><b>Fig. 1</b> — Ces matchs ne sont pas des enregistrements : la politique finale (86 000 paramètres, 225 ko) est exécutée dans votre navigateur et décide pour les deux joueurs, dix fois par seconde. Chacun défend la cage de sa couleur : le joueur 1 attaque le but de droite, le joueur 2 celui de gauche ; 20 secondes sans but font un match nul. Déplacez les joueurs ou le ballon pour essayer une situation : le match repart de là.</figcaption>
       </figure>
       <aside class="margin"><span class="label">Pourquoi la règle des 12 m/s</span>Sans elle, les deux joueurs apprenaient à camper dans leur propre but : posté sur sa ligne, un joueur capte tous les tirs qui passent à moins de 1,6 m, et le match nul devient un équilibre. Vérifié avec un gardien codé à la main : le joueur scripté ne le battait que 48,8 % du temps, contre 78,6 % une fois la règle en place.</aside>
 

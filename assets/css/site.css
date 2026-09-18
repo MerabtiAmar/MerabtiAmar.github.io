@@ -198,7 +198,10 @@ figure { margin: 0; }
 .board-head, .board-foot { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 9px 12px; font-family: var(--mono); font-size: 12.5px; color: var(--ink-2); }
 .board-head { border-bottom: 1px solid var(--rule); }
 .board-foot { border-top: 1px solid var(--rule); flex-wrap: wrap; }
-.board canvas { width: 100%; height: auto; aspect-ratio: 113 / 76; }
+.board canvas { width: 100%; height: auto; aspect-ratio: 113 / 76; touch-action: manipulation; }
+.board canvas.grab { cursor: grab; }
+.board canvas.grabbing { cursor: grabbing; }
+.board-foot .hint { color: var(--muted); }
 .board .score b { font-weight: 500; color: var(--ink); }
 .board .flash { color: var(--accent); min-width: 8em; text-align: right; }
 .board .clock { font-variant-numeric: tabular-nums; color: var(--muted); }
